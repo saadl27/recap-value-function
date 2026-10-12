@@ -74,6 +74,36 @@ Each agent writes its results to `reports/step_XX.md` (see [conventions](docs/co
 
 ---
 
+## DAgger dataset with human interventions: `vf_dagger_i1060_s0`
+
+Value function trained on
+[`actuator_unboxing_1h_HQ_dagger_rollouts`](https://huggingface.co/datasets/DreamMachines/actuator_unboxing_1h_HQ_dagger_rollouts)
+with the reward cut at each human takeover ([docs/interventions.md](docs/interventions.md), RESULTS.md §10).
+
+> **Not analysed yet.** The plots and videos below are raw outputs of the training run. We have not looked into them
+> or drawn conclusions from them.
+
+**V(t) on 6 held-out and 6 training episodes** (2 each with 0, 1 and 2+ takeovers). Dashed: target g(t); orange
+shading: human control; red triangles: takeover penalties.
+
+![V curves, held-out episodes](reports/figures/dagger/v_curves_heldout_steps_250.png)
+![V curves, training episodes](reports/figures/dagger/v_curves_train_steps_250.png)
+
+**Videos**: the 3 cameras with V(t) underneath and a moving cursor; the header says when the human is in control.
+They are WebM (VP9), local only, in `runs/viz_dagger/` (git-ignored). The `.mp4` next to each is the same video in
+H.264.
+
+| | 0 takeovers | 1 takeover | 2+ takeovers |
+|---|---|---|---|
+| held-out | [206](runs/viz_dagger/heldout/ep_0206.webm) · [209](runs/viz_dagger/heldout/ep_0209.webm) | [50](runs/viz_dagger/heldout/ep_0050.webm) · [61](runs/viz_dagger/heldout/ep_0061.webm) | [23](runs/viz_dagger/heldout/ep_0023.webm) · [157](runs/viz_dagger/heldout/ep_0157.webm) |
+| train | [207](runs/viz_dagger/train/ep_0207.webm) · [220](runs/viz_dagger/train/ep_0220.webm) | [147](runs/viz_dagger/train/ep_0147.webm) · [170](runs/viz_dagger/train/ep_0170.webm) | [111](runs/viz_dagger/train/ep_0111.webm) · [117](runs/viz_dagger/train/ep_0117.webm) |
+
+Checkpoint shown: step 250 only. Steps 500, 750 and 850 are rendered on the workstation
+(`curiosity:~/DreamMachines/runs/viz_dagger/`) and will replace these once copied over.
+Re-render with `scripts/07_compare_checkpoints.py` (see its docstring).
+
+---
+
 ## Repository layout
 
 ```
