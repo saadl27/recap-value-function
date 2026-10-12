@@ -611,13 +611,12 @@ target g(t); orange shading: human control; red triangles: takeover penalties.
 ![V curves, training episodes](reports/figures/dagger/v_curves_train_steps_250.png)
 
 **Videos**: the 3 cameras with V(t) underneath and a moving cursor; the header says when the human is in control.
-They are WebM (VP9) and local only, in `runs/viz_dagger/` (git-ignored); the `.mp4` next to each is the same video in
-H.264.
+They are WebM (VP9), in [reports/figures/dagger/videos/](reports/figures/dagger/videos/).
 
 | | 0 takeovers | 1 takeover | 2+ takeovers |
 |---|---|---|---|
-| held-out | [206](runs/viz_dagger/heldout/ep_0206.webm) · [209](runs/viz_dagger/heldout/ep_0209.webm) | [50](runs/viz_dagger/heldout/ep_0050.webm) · [61](runs/viz_dagger/heldout/ep_0061.webm) | [23](runs/viz_dagger/heldout/ep_0023.webm) · [157](runs/viz_dagger/heldout/ep_0157.webm) |
-| train | [207](runs/viz_dagger/train/ep_0207.webm) · [220](runs/viz_dagger/train/ep_0220.webm) | [147](runs/viz_dagger/train/ep_0147.webm) · [170](runs/viz_dagger/train/ep_0170.webm) | [111](runs/viz_dagger/train/ep_0111.webm) · [117](runs/viz_dagger/train/ep_0117.webm) |
+| held-out | [206](reports/figures/dagger/videos/heldout/ep_0206.webm) · [209](reports/figures/dagger/videos/heldout/ep_0209.webm) | [50](reports/figures/dagger/videos/heldout/ep_0050.webm) · [61](reports/figures/dagger/videos/heldout/ep_0061.webm) | [23](reports/figures/dagger/videos/heldout/ep_0023.webm) · [157](reports/figures/dagger/videos/heldout/ep_0157.webm) |
+| train | [207](reports/figures/dagger/videos/train/ep_0207.webm) · [220](reports/figures/dagger/videos/train/ep_0220.webm) | [147](reports/figures/dagger/videos/train/ep_0147.webm) · [170](reports/figures/dagger/videos/train/ep_0170.webm) | [111](reports/figures/dagger/videos/train/ep_0111.webm) · [117](reports/figures/dagger/videos/train/ep_0117.webm) |
 
 Only step 250 is shown. Steps 500, 750 and 850 are rendered on the workstation
 (`curiosity:~/DreamMachines/runs/viz_dagger/`) and will replace these once copied over. Re-render with
