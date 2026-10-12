@@ -1,0 +1,145 @@
+{
+  "seed": 0,
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "torch": "2.11.0+cu128",
+  "transformers": "5.19.0",
+  "vision_backbone": "google/siglip2-so400m-patch14-224",
+  "language_backbone": "unsloth/gemma-3-270m",
+  "gpu_free_at_start_gib": 30.85,
+  "gpu_total_gib": 31.36,
+  "attention_checks": {
+    "orig_sliding_window": 512,
+    "layer_types": [
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "full_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "full_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "full_attention"
+    ],
+    "rope_parameters": {
+      "sliding_attention": {
+        "rope_type": "default",
+        "rope_theta": 10000.0
+      },
+      "full_attention": {
+        "rope_type": "default",
+        "rope_theta": 1000000.0
+      }
+    },
+    "short_seq_maxdiff_window_enlarged": 0.0,
+    "short_seq_maxdiff_layer_types_rewritten": 271.2641906738281,
+    "short_seq_ref_absmean": 2.932657480239868,
+    "long_seq_last_token_change_window_512": 40.72023391723633,
+    "long_seq_last_token_change_window_enlarged": 68.34121704101562,
+    "embed_scale_fp32": 25.298221588134766,
+    "embed_scale_bf16": 25.25,
+    "sqrt_hidden_size": 25.298221281347036,
+    "rel_err_eager_fp32_vs_eager_fp32": 0.0,
+    "rel_err_eager_bf16_vs_eager_fp32": 0.012133976444602013,
+    "rel_err_sdpa_fp32_vs_eager_fp32": 1.6996008298519882e-06,
+    "rel_err_sdpa_bf16_vs_eager_fp32": 0.005988992750644684
+  },
+  "param_counts": {
+    "vision_tower": {
+      "total": 412442352,
+      "trainable": 412442352
+    },
+    "language_model": {
+      "total": 268098176,
+      "trainable": 100326016
+    },
+    "  of which token_embedding": {
+      "total": 167772160,
+      "trainable": 0
+    },
+    "new_modules": {
+      "total": 880073,
+      "trainable": 880073
+    },
+    "all": {
+      "total": 681420601,
+      "trainable": 513648441
+    }
+  },
+  "seq_len": 783,
+  "prompt_tokens": 13,
+  "logits_dtype": "torch.float32",
+  "init_loss": 5.303305149078369,
+  "init_value_mean": -0.5,
+  "lm_sliding_window_after_override": 783,
+  "memory": [
+    {
+      "variant": "full+gc",
+      "batch": 32,
+      "vision_bf16": false,
+      "freeze_vision": false,
+      "gradient_checkpointing": true,
+      "weights_gib": 2.55,
+      "fwd_bwd_s": 1.018,
+      "peak_fwd_bwd_gib": 7.95,
+      "peak_with_adamw_gib": 11.78
+    },
+    {
+      "variant": "full",
+      "batch": 32,
+      "vision_bf16": false,
+      "freeze_vision": false,
+      "gradient_checkpointing": false,
+      "weights_gib": 2.56,
+      "oom": "CUDA out of memory. Tried to allocate 54.00 MiB. GPU 0 has a total capacity of 31.36 GiB of which 23.75 MiB is free. Including non-PyTorch memory, this process has 31.31 GiB memory in use. Of the allo"
+    },
+    {
+      "variant": "frozen_vision+gc",
+      "batch": 32,
+      "vision_bf16": false,
+      "freeze_vision": true,
+      "gradient_checkpointing": true,
+      "weights_gib": 2.56,
+      "fwd_bwd_s": 0.587,
+      "peak_fwd_bwd_gib": 4.87,
+      "peak_with_adamw_gib": 5.62
+    }
+  ],
+  "overfit": {
+    "freeze_vision": false,
+    "gradient_checkpointing": true,
+    "vision_bf16": false,
+    "steps": 200,
+    "batch": 16,
+    "accum": 1,
+    "samples": 16,
+    "lr": 0.0001,
+    "first_loss": 5.303305149078369,
+    "loss_at": {
+      "0": 5.3033,
+      "20": 2.6763,
+      "40": 2.4731,
+      "60": 0.3296,
+      "80": 0.1465,
+      "100": 0.0024,
+      "120": 0.0009,
+      "140": 0.0006,
+      "160": 0.0005,
+      "180": 0.0004
+    },
+    "final_train_loss": 0.0003282752586528659,
+    "final_eval_loss_all": 0.0003252360038459301,
+    "final_top1_acc": 1.0,
+    "passed": true,
+    "seconds": 106.7,
+    "peak_gib": 10.25
+  }
+}
