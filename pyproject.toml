@@ -1,0 +1,55 @@
+[project]
+name = "recap-vf"
+version = "0.1.0"
+description = "RECAP (pi*0.6) value function and advantage labelling for DreamMachines robot rollouts"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "torch>=2.7",
+    "torchvision>=0.22",
+    "transformers>=4.56",
+    "safetensors>=0.4",
+    "huggingface-hub>=0.34",
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "pyarrow>=16",
+    "h5py>=3.11",
+    "av>=12",
+    "pillow>=10",
+    "scipy>=1.13",
+    "scikit-learn>=1.5",
+    "matplotlib>=3.9",
+    "tensorboard>=2.17",
+    "pyyaml>=6",
+    "tqdm>=4.66",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/recap_vf"]
+
+# CUDA 12.8 wheels: required for RTX 50xx (Blackwell, sm_120); also fine on the RTX 4060.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu128" }]
+torchvision = [{ index = "pytorch-cu128" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
