@@ -13,7 +13,7 @@ What we want: `V(o_t)` = expected outcome **given only what is observable at t**
 honest model looks like; the gap between train and held-out tells us how much it memorised.
 
 The paper avoids this with much more data and web-data co-training. **Cross-fitting is out of scope for now**
-(decision 2026-10-12); if memorisation shows up we fix it with checkpoint choice and regularisation only.
+(decision 2026-10-12); if memorisation shows up, Saad decides what to do.
 
 ## Diagnostics (`scripts/05_memorization_report.py --run vf_c2229_s0 --ckpt best`)
 Run the selected checkpoint on `val_train` and `val_heldout` (same 120-episode, stride-10 sets as step 4) and on
@@ -32,14 +32,12 @@ Save figures under `reports/figures/step_05/` and a metrics table in the report.
 ## Decision rule
 - **No significant memorisation** — `auc@0` gap < 0.1, `fail_detect_time` medians within 0.1, curves look alike:
   → keep the single model (`best` checkpoint). Go to step 6 with `--run vf_c2229_s0`.
-- **Memorisation present** — try, in this order, stopping as soon as the gap closes:
-  1. **Earlier checkpoint** (the gap often appears after the val-CE minimum). Cheap.
-  2. **Regularised re-run**: `head_dropout: 0.1`, `weight_decay: 0.01`, and/or fewer steps.
-     One run (~same cost as step 4).
+- **Memorisation present** → **stop and ask Saad.** Report the numbers and the options (e.g. an earlier checkpoint,
+  a re-run with dropout / weight decay / fewer steps). Nothing is re-trained or changed without his confirmation.
 
 ## Definition of done
 - [ ] All five diagnostics computed, figures + table in the report
-- [ ] A clear decision (single model / earlier checkpoint / regularised) with the numbers that justify it
-- [ ] If re-training was needed: the new runs exist, and the diagnostics re-run on them show the gap closed
+- [ ] A clear verdict (memorisation or not) with the numbers that justify it; if memorisation: options listed and
+      Saad asked — no action taken without his confirmation
 - [ ] The report states exactly which checkpoint(s) step 6 must use (`--run` / `--ckpt` arguments)
 - [ ] `reports/step_05_memorization.md` written

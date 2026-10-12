@@ -16,14 +16,10 @@ everything step 5 needs to diagnose memorisation.
   - `val_heldout`: all 120 held-out episodes, `frame_stride=10` (~9.5 k frames);
   - `val_train`: 120 randomly chosen **train** episodes (fixed seed), `frame_stride=10`. Same metrics as held-out →
     the train/held-out gap is the memorisation signal used in step 5.
-- Sampling: uniform over train frames, shuffled, steps-based (an "epoch" has no special meaning). Optional
-  `balance: outcome` re-weights so success and failure frames are drawn 50/50 (failure frames are ~56 % by default) —
-  off by default.
+- Sampling: uniform over train frames, shuffled, steps-based (an "epoch" has no special meaning).
 
 ## Loss & targets
-- Default (paper): `F.cross_entropy(logits, target_bin)`.
-- Option `target: hlgauss` → soft targets `bins.hl_gauss_targets(return_norm, sigma_bins=0.75)` with
-  `-(targets * log_softmax(logits)).sum(-1).mean()`.
+- `F.cross_entropy(logits, target_bin)` (paper). Baseline only: no soft targets, no re-weighting.
 
 ## Optimisation (defaults ≈ RLinf's recipe, adapted to one GPU)
 | Knob | Default | Note |
@@ -41,7 +37,6 @@ everything step 5 needs to diagnose memorisation.
 | augmentation | **none** | decided 2026-10-12: not used anywhere in this project |
 | seed | 0 | |
 
-`torch.compile` is optional — only if it works first try; report.
 
 ## Metrics (`src/recap_vf/metrics.py`, computed on both val sets)
 | Metric | Definition |
