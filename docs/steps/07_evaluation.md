@@ -23,7 +23,8 @@ An mp4 per episode in `runs/<run>/videos/ep_XXXX.mp4`:
 ### 7.2 `scripts/07_keyframes.py --run <run> --episode <e> --k 3`
 Finds the **k most negative** and **k most positive** `A_t` (non-overlapping, at least 2 s apart) and saves, for
 each, a PNG strip of the top + both wrist cameras at `t − 1 s, t, t + 1 s, t + 2 s` with V and A printed on each
-frame → `reports/figures/step_07/ep_XXXX_{drop,rise}_{i}.png`. Agents can open these PNGs to judge what is
+frame → `runs/<run>/keyframes/ep_XXXX_{drop,rise}_{i}.png` (only the 3–5 best stills are copied to
+`reports/figures/step_07/`, to keep the repo small). Agents can open these PNGs to judge what is
 happening; humans can use the mp4s.
 
 ## Episode selection (fixed seed, list them in the report)

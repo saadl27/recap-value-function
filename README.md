@@ -58,7 +58,7 @@ an advantage-conditioned policy is later trained on.
 | 4 | [Training](docs/steps/04_training.md) | 1, 2, 3 | ⬜ todo |
 | 5 | [Memorisation check](docs/steps/05_memorization_check.md) | 4 | ⬜ todo |
 | 6 | [Advantage labelling](docs/steps/06_advantage.md) | 4 (5) | 🔄 code in progress (fake values) |
-| 7 | [Evaluation](docs/steps/07_evaluation.md) | 6 | 🔄 tooling in progress |
+| 7 | [Evaluation](docs/steps/07_evaluation.md) | 6 | 🟨 tooling done, evaluation pending — [report](reports/step_07_evaluation.md) |
 
 Each agent writes its results to `reports/step_XX.md` (see [conventions](docs/conventions.md#reports)).
 
