@@ -1,0 +1,45 @@
+# Step 4: value-function training (baseline vf_c2229_s0). See docs/steps/04_training.md.
+# Every key is a TrainConfig field (src/recap_vf/train.py); override from the CLI with --set key=value.
+run_name: vf_c2229_s0
+seed: 0
+
+# data (null paths -> defaults from recap_vf.paths)
+returns_tag: c2229
+train_episodes: null          # null -> splits["train"] (680 episodes)
+val_heldout_episodes: null    # null -> splits["heldout"] (120 episodes)
+val_train_num_episodes: 120   # fixed random train episodes (val_train_seed) for the memorisation gap
+val_train_seed: 0
+val_frame_stride: 10
+num_workers: 12
+eval_num_workers: 8
+prefetch_factor: 4
+mp_context: forkserver
+
+# model: ValueModelConfig fields. Full fine-tune; gradient checkpointing is required for micro-batch 32 on 32 GB.
+model:
+  vision_backbone: google/siglip2-so400m-patch14-224
+  language_backbone: unsloth/gemma-3-270m   # ungated mirror of google/gemma-3-270m (identical weights)
+  freeze_vision: false
+  gradient_checkpointing: true
+
+# optimisation (RLinf-like): AdamW, 200-step linear warm-up then constant LR
+steps: 2100                   # cap ~ one pass over the 543 k train frames at batch 256; early stopping below
+global_batch: 256
+micro_batch: 32               # x grad accumulation 8
+lr_backbone: 5.0e-5
+lr_new: 1.0e-4
+weight_decay: 0.0
+betas: [0.9, 0.95]
+eps: 1.0e-8
+warmup_steps: 200
+grad_clip: 1.0
+precision: bf16
+tf32: true
+
+# eval / checkpoints (best = min val_heldout CE, last = resumable)
+eval_every: 250
+eval_batch: 64
+early_stop_patience: 3        # evals without val_heldout CE improvement; 0 disables
+log_every: 10
+plot_heldout_per_class: 4
+plot_train_episodes: 4
