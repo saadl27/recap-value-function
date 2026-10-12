@@ -55,7 +55,7 @@ an advantage-conditioned policy is later trained on.
 | 1 | [Data pipeline](docs/steps/01_data_pipeline.md) | 0 | ✅ done — 800 eps / 634 838 frames, 36 GB store, 10k items/s (16 workers) on workstation — [report](reports/step_01_data.md) |
 | 2 | [Rewards & returns](docs/steps/02_returns.md) | 0 | ✅ done — [report](reports/step_02_returns.md) |
 | 3 | [Value model](docs/steps/03_model.md) | 0 | ✅ done — 681 M params; 5090 full FT + grad-ckpt batch 32 = 11.8 GiB, overfit 5.30→0.0003 — [report](reports/step_03_model.md) |
-| 4 | [Training](docs/steps/04_training.md) | 1, 2, 3 | 🔄 in progress |
+| 4 | [Training](docs/steps/04_training.md) | 1, 2, 3 | 🔄 `vf_c2229_s0` training on the 5090 (started 12:01, ~30 samples/s, ETA ≤ ~17:30) |
 | 5 | [Memorisation check](docs/steps/05_memorization_check.md) | 4 | ⬜ todo |
 | 6 | [Advantage labelling](docs/steps/06_advantage.md) | 4 (5) | 🟨 code done (validated on fake values), real labels pending — [report](reports/step_06_advantage.md) |
 | 7 | [Evaluation](docs/steps/07_evaluation.md) | 6 | 🟨 tooling done, evaluation pending — [report](reports/step_07_evaluation.md) |
