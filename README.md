@@ -51,10 +51,10 @@ an advantage-conditioned policy is later trained on.
 
 | Step | Doc | Depends on | Status |
 |---|---|---|---|
-| 0 | [Environment setup](docs/steps/00_setup.md) | — | ⬜ todo |
-| 1 | [Data pipeline](docs/steps/01_data_pipeline.md) | 0 | ⬜ todo |
-| 2 | [Rewards & returns](docs/steps/02_returns.md) | 0 | ⬜ todo |
-| 3 | [Value model](docs/steps/03_model.md) | 0 | ⬜ todo |
+| 0 | [Environment setup](docs/steps/00_setup.md) | — | ✅ laptop · ⬜ workstation |
+| 1 | [Data pipeline](docs/steps/01_data_pipeline.md) | 0 | 🔄 in progress |
+| 2 | [Rewards & returns](docs/steps/02_returns.md) | 0 | ✅ done — [report](reports/step_02_returns.md) |
+| 3 | [Value model](docs/steps/03_model.md) | 0 | 🔄 in progress |
 | 4 | [Training](docs/steps/04_training.md) | 1, 2, 3 | ⬜ todo |
 | 5 | [Memorisation check](docs/steps/05_memorization_check.md) | 4 | ⬜ todo |
 | 6 | [Advantage labelling](docs/steps/06_advantage.md) | 4 (5) | ⬜ todo |

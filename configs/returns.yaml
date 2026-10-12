@@ -1,0 +1,10 @@
+# Step 2: rewards, returns and 201-bin value targets. See docs/steps/02_returns.md.
+# The first C_fail is the default tag (c2229 = longest episode, a failure); the others are for a later ablation.
+c_fail: [2229, 1115, 4458]
+# Check (index, episode_index, frame_index) against the raw LeRobot frame table when it is present.
+verify_frame_table: true
+# Write figures under reports/figures/step_02/.
+figures: true
+# Number of example episodes per class in the return_norm vs t/T plot.
+num_example_episodes: 10
+seed: 0

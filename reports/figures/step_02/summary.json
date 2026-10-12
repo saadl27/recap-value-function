@@ -1,0 +1,104 @@
+[
+  {
+    "tag": "c2229",
+    "c_fail": 2229.0,
+    "Z": 4457.0,
+    "num_frames": 634838,
+    "success": {
+      "episodes": 423,
+      "frames": 282587,
+      "frame_fraction": 0.44513245898953746,
+      "return_norm_min": -0.4657841622829437,
+      "return_norm_max": 0.0,
+      "bin_min": 107,
+      "bin_max": 200,
+      "bins_used": 94
+    },
+    "failure": {
+      "episodes": 377,
+      "frames": 352251,
+      "frame_fraction": 0.5548675410104625,
+      "return_norm_min": -1.0,
+      "return_norm_max": -0.5001121759414673,
+      "bin_min": 0,
+      "bin_max": 100,
+      "bins_used": 101
+    },
+    "bins": {
+      "used": 195,
+      "empty": 6,
+      "count_min_nonzero": 15,
+      "count_median_nonzero": 1842.0,
+      "count_max": 9729,
+      "argmax": 186
+    }
+  },
+  {
+    "tag": "c1115",
+    "c_fail": 1115.0,
+    "Z": 3343.0,
+    "num_frames": 634838,
+    "success": {
+      "episodes": 423,
+      "frames": 282587,
+      "frame_fraction": 0.44513245898953746,
+      "return_norm_min": -0.6209990978240967,
+      "return_norm_max": 0.0,
+      "bin_min": 76,
+      "bin_max": 200,
+      "bins_used": 125
+    },
+    "failure": {
+      "episodes": 377,
+      "frames": 352251,
+      "frame_fraction": 0.5548675410104625,
+      "return_norm_min": -1.0,
+      "return_norm_max": -0.33353275060653687,
+      "bin_min": 0,
+      "bin_max": 133,
+      "bins_used": 134
+    },
+    "bins": {
+      "used": 201,
+      "empty": 0,
+      "count_min_nonzero": 30,
+      "count_median_nonzero": 2306.0,
+      "count_max": 7191,
+      "argmax": 178
+    }
+  },
+  {
+    "tag": "c4458",
+    "c_fail": 4458.0,
+    "Z": 6686.0,
+    "num_frames": 634838,
+    "success": {
+      "episodes": 423,
+      "frames": 282587,
+      "frame_fraction": 0.44513245898953746,
+      "return_norm_min": -0.31049954891204834,
+      "return_norm_max": 0.0,
+      "bin_min": 138,
+      "bin_max": 200,
+      "bins_used": 63
+    },
+    "failure": {
+      "episodes": 377,
+      "frames": 352251,
+      "frame_fraction": 0.5548675410104625,
+      "return_norm_min": -1.0,
+      "return_norm_max": -0.6667664051055908,
+      "bin_min": 0,
+      "bin_max": 67,
+      "bins_used": 68
+    },
+    "bins": {
+      "used": 131,
+      "empty": 70,
+      "count_min_nonzero": 21,
+      "count_median_nonzero": 2646.0,
+      "count_max": 14382,
+      "argmax": 190
+    }
+  }
+]
