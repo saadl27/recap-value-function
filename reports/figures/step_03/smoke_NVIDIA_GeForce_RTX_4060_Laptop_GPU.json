@@ -1,0 +1,152 @@
+{
+  "seed": 0,
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "torch": "2.11.0+cu128",
+  "transformers": "5.19.0",
+  "vision_backbone": "google/siglip2-so400m-patch14-224",
+  "language_backbone": "google/gemma-3-270m",
+  "gpu_free_at_start_gib": 4.94,
+  "gpu_total_gib": 7.62,
+  "attention_checks": {
+    "orig_sliding_window": 512,
+    "layer_types": [
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "full_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "full_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "sliding_attention",
+      "full_attention"
+    ],
+    "rope_parameters": {
+      "sliding_attention": {
+        "rope_type": "default",
+        "rope_theta": 10000.0
+      },
+      "full_attention": {
+        "rope_type": "default",
+        "rope_theta": 1000000.0
+      }
+    },
+    "short_seq_maxdiff_window_enlarged": 0.0,
+    "short_seq_maxdiff_layer_types_rewritten": 271.2640075683594,
+    "short_seq_ref_absmean": 2.932657480239868,
+    "long_seq_last_token_change_window_512": 40.720272064208984,
+    "long_seq_last_token_change_window_enlarged": 68.34130096435547,
+    "embed_scale_fp32": 25.298221588134766,
+    "embed_scale_bf16": 25.25,
+    "sqrt_hidden_size": 25.298221281347036,
+    "rel_err_eager_fp32_vs_eager_fp32": 0.0,
+    "rel_err_eager_bf16_vs_eager_fp32": 0.01321070920675993,
+    "rel_err_sdpa_fp32_vs_eager_fp32": 7.171323659349582e-07,
+    "rel_err_sdpa_bf16_vs_eager_fp32": 0.007266251370310783
+  },
+  "param_counts": {
+    "vision_tower": {
+      "total": 412442352,
+      "trainable": 412442352
+    },
+    "language_model": {
+      "total": 268098176,
+      "trainable": 100326016
+    },
+    "  of which token_embedding": {
+      "total": 167772160,
+      "trainable": 0
+    },
+    "new_modules": {
+      "total": 880073,
+      "trainable": 880073
+    },
+    "all": {
+      "total": 681420601,
+      "trainable": 513648441
+    }
+  },
+  "seq_len": 783,
+  "prompt_tokens": 13,
+  "logits_dtype": "torch.float32",
+  "init_loss": 5.303305149078369,
+  "init_value_mean": -0.5,
+  "lm_sliding_window_after_override": 783,
+  "memory": [
+    {
+      "variant": "frozen_vision",
+      "batch": 8,
+      "vision_bf16": false,
+      "freeze_vision": true,
+      "gradient_checkpointing": false,
+      "weights_gib": 2.55,
+      "oom": "CUDA out of memory. Tried to allocate 16.00 MiB. GPU 0 has a total capacity of 7.62 GiB of which 25.50 MiB is free. Including non-PyTorch memory, this process has 5.01 GiB memory in use. Of the alloca"
+    },
+    {
+      "variant": "frozen_vision+gc",
+      "batch": 8,
+      "vision_bf16": false,
+      "freeze_vision": true,
+      "gradient_checkpointing": true,
+      "weights_gib": 2.55,
+      "fwd_bwd_s": 1.815,
+      "peak_fwd_bwd_gib": 3.39,
+      "peak_with_adamw_gib": 4.15
+    },
+    {
+      "variant": "full",
+      "batch": 8,
+      "vision_bf16": false,
+      "freeze_vision": false,
+      "gradient_checkpointing": false,
+      "weights_gib": 2.56,
+      "oom": "CUDA out of memory. Tried to allocate 28.00 MiB. GPU 0 has a total capacity of 7.62 GiB of which 31.50 MiB is free. Including non-PyTorch memory, this process has 5.00 GiB memory in use. Of the alloca"
+    },
+    {
+      "variant": "full+gc",
+      "batch": 8,
+      "vision_bf16": false,
+      "freeze_vision": false,
+      "gradient_checkpointing": true,
+      "weights_gib": 2.56,
+      "oom": "CUDA out of memory. Tried to allocate 52.00 MiB. GPU 0 has a total capacity of 7.62 GiB of which 39.50 MiB is free. Including non-PyTorch memory, this process has 5.00 GiB memory in use. Of the alloca"
+    }
+  ],
+  "overfit": {
+    "freeze_vision": true,
+    "gradient_checkpointing": true,
+    "vision_bf16": false,
+    "steps": 200,
+    "batch": 4,
+    "accum": 4,
+    "samples": 16,
+    "lr": 0.0001,
+    "first_loss": 5.303305149078369,
+    "loss_at": {
+      "0": 5.3033,
+      "20": 2.5317,
+      "40": 1.8318,
+      "60": 0.272,
+      "80": 0.0054,
+      "100": 0.0015,
+      "120": 0.0009,
+      "140": 0.0007,
+      "160": 0.0005,
+      "180": 0.0005
+    },
+    "final_train_loss": 0.0003925305718439631,
+    "final_eval_loss_all": 0.00038810040859971195,
+    "final_top1_acc": 1.0,
+    "passed": true,
+    "seconds": 708.9,
+    "peak_gib": 4.08
+  }
+}

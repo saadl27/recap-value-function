@@ -54,7 +54,7 @@ an advantage-conditioned policy is later trained on.
 | 0 | [Environment setup](docs/steps/00_setup.md) | — | ✅ laptop · ✅ workstation (torch 2.11+cu128 on RTX 5090, sm_120) |
 | 1 | [Data pipeline](docs/steps/01_data_pipeline.md) | 0 | ✅ done — 800 eps / 634 838 frames, 36 GB store, 10k items/s (16 workers) on workstation — [report](reports/step_01_data.md) |
 | 2 | [Rewards & returns](docs/steps/02_returns.md) | 0 | ✅ done — [report](reports/step_02_returns.md) |
-| 3 | [Value model](docs/steps/03_model.md) | 0 | 🔄 in progress |
+| 3 | [Value model](docs/steps/03_model.md) | 0 | 🟨 done on laptop (681 M params), 5090 full-FT check running — [report](reports/step_03_model.md) |
 | 4 | [Training](docs/steps/04_training.md) | 1, 2, 3 | ⬜ todo |
 | 5 | [Memorisation check](docs/steps/05_memorization_check.md) | 4 | ⬜ todo |
 | 6 | [Advantage labelling](docs/steps/06_advantage.md) | 4 (5) | 🟨 code done (validated on fake values), real labels pending — [report](reports/step_06_advantage.md) |

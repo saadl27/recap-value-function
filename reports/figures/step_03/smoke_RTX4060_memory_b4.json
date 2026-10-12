@@ -1,0 +1,69 @@
+{
+  "seed": 0,
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "torch": "2.11.0+cu128",
+  "transformers": "5.19.0",
+  "vision_backbone": "google/siglip2-so400m-patch14-224",
+  "language_backbone": "google/gemma-3-270m",
+  "gpu_free_at_start_gib": 5.55,
+  "gpu_total_gib": 7.62,
+  "param_counts": {
+    "vision_tower": {
+      "total": 412442352,
+      "trainable": 412442352
+    },
+    "language_model": {
+      "total": 268098176,
+      "trainable": 100326016
+    },
+    "  of which token_embedding": {
+      "total": 167772160,
+      "trainable": 0
+    },
+    "new_modules": {
+      "total": 880073,
+      "trainable": 880073
+    },
+    "all": {
+      "total": 681420601,
+      "trainable": 513648441
+    }
+  },
+  "seq_len": 783,
+  "prompt_tokens": 13,
+  "logits_dtype": "torch.float32",
+  "init_loss": 5.303305149078369,
+  "init_value_mean": -0.5,
+  "lm_sliding_window_after_override": 783,
+  "memory": [
+    {
+      "variant": "frozen_vision",
+      "batch": 4,
+      "vision_bf16": false,
+      "freeze_vision": true,
+      "gradient_checkpointing": false,
+      "weights_gib": 2.55,
+      "oom": "CUDA out of memory. Tried to allocate 20.00 MiB. GPU 0 has a total capacity of 7.62 GiB of which 24.75 MiB is free. Including non-PyTorch memory, this process has 5.62 GiB memory in use. Of the alloca"
+    },
+    {
+      "variant": "full",
+      "batch": 4,
+      "vision_bf16": false,
+      "freeze_vision": false,
+      "gradient_checkpointing": false,
+      "weights_gib": 2.55,
+      "oom": "CUDA out of memory. Tried to allocate 26.00 MiB. GPU 0 has a total capacity of 7.62 GiB of which 26.75 MiB is free. Including non-PyTorch memory, this process has 5.62 GiB memory in use. Of the alloca"
+    },
+    {
+      "variant": "full+gc",
+      "batch": 4,
+      "vision_bf16": false,
+      "freeze_vision": false,
+      "gradient_checkpointing": true,
+      "weights_gib": 2.55,
+      "fwd_bwd_s": 1.642,
+      "peak_fwd_bwd_gib": 4.64,
+      "oom": "CUDA out of memory. Tried to allocate 20.00 MiB. GPU 0 has a total capacity of 7.62 GiB of which 16.75 MiB is free. Including non-PyTorch memory, this process has 5.63 GiB memory in use. Of the alloca"
+    }
+  ]
+}
