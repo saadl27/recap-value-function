@@ -31,13 +31,13 @@ everything step 5 needs to diagnose memorisation.
 | optimiser | AdamW, betas (0.9, 0.95), eps 1e-8 | |
 | lr pretrained / new | 5e-5 / 1e-4 | `model.param_groups` |
 | weight decay | 0.0 | knob for step 5 |
-| schedule | linear warm-up 500 steps → cosine to 10 % | RLinf uses constant; cosine is safer for a fixed budget |
+| schedule | linear warm-up 200 steps → **constant** | RLinf's choice; lets a run be extended by resuming |
 | grad clip | 1.0 | |
 | global batch | 256 = micro-batch × grad-accum (micro 32 × 8 to start; tune to memory) | |
-| steps | 8 000 (~2 M samples ≈ 3.8 passes over train frames) | revisit after throughput benchmark |
+| steps | **cap 2 100 (≈ 540 k samples = one pass over the train frames, ~4–5 h on the 5090)** + early stopping: stop when `val_heldout/ce` has not improved for 3 evals | 8 000 (RLinf) ≈ 18 h here — unnecessary for 50 fps frames that are near-duplicates, and more passes raise the memorisation risk |
 | precision | bf16 autocast, fp32 master weights, TF32 on | |
 | grad checkpointing | as needed for micro-batch 32 | |
-| eval / ckpt | every 500 steps | |
+| eval / ckpt | every 250 steps | |
 | augmentation | **off** (`augment: false`) | step 5 may turn it on |
 | seed | 0 | |
 
@@ -93,7 +93,9 @@ decreasing while val CE bottoms out and rises: that's the over-fitting point.
    decreases, a checkpoint is written, resume works.
 4. **Throughput benchmark** (5090, before the real run): 30 steps for micro-batch ∈ {16, 32, 48} × grad-ckpt
    on/off → samples/s and peak memory table. Make sure the dataloader keeps up (GPU util > 90 %; if not, add workers).
-   Estimate wall time for 8 000 steps; if > 12 h, propose fewer steps in the report before launching.
+   Estimate wall time for the step cap. Measured on the 5090 (step 3): full FT + gradient checkpointing, micro-batch
+   32 ≈ 1.0 s/step ≈ 31 samples/s (~50 % of the card's bf16 peak), so speed-ups beyond ~20–30 % need less compute
+   per sample, not tuning. Freezing the vision tower is 1.7× faster but changes the recipe — not the default.
 5. **Main run** `vf_c2229_s0` with defaults. Monitor: loss curves, val metrics, the V-curve plots.
 6. Report: curves (train CE, val_heldout CE, val_train CE), best step, final metrics table for both val sets,
    example V-curve plots, wall time, peak memory, anything surprising.

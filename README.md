@@ -55,7 +55,7 @@ an advantage-conditioned policy is later trained on.
 | 1 | [Data pipeline](docs/steps/01_data_pipeline.md) | 0 | ✅ done — 800 eps / 634 838 frames, 36 GB store, 10k items/s (16 workers) on workstation — [report](reports/step_01_data.md) |
 | 2 | [Rewards & returns](docs/steps/02_returns.md) | 0 | ✅ done — [report](reports/step_02_returns.md) |
 | 3 | [Value model](docs/steps/03_model.md) | 0 | ✅ done — 681 M params; 5090 full FT + grad-ckpt batch 32 = 11.8 GiB, overfit 5.30→0.0003 — [report](reports/step_03_model.md) |
-| 4 | [Training](docs/steps/04_training.md) | 1, 2, 3 | ⏸ paused (usage limit) — next |
+| 4 | [Training](docs/steps/04_training.md) | 1, 2, 3 | 🔄 in progress |
 | 5 | [Memorisation check](docs/steps/05_memorization_check.md) | 4 | ⬜ todo |
 | 6 | [Advantage labelling](docs/steps/06_advantage.md) | 4 (5) | 🟨 code done (validated on fake values), real labels pending — [report](reports/step_06_advantage.md) |
 | 7 | [Evaluation](docs/steps/07_evaluation.md) | 6 | 🟨 tooling done, evaluation pending — [report](reports/step_07_evaluation.md) |
@@ -110,6 +110,7 @@ optional `scripts/remote.sh` helper are in [conventions → Machines](docs/conve
 | Reward | −1 per frame, 0 at success end, −C_fail at failure end | Paper |
 | Normalisation | divide by \|min return in dataset\| | RLinf; maps to [−1, 0] |
 | Frames | all frames, uniformly sampled, training measured in steps | RLinf/OpenTau use all frames |
+| Training budget | ≤ one pass over train frames (2 100 steps × 256, ~4–5 h), constant LR, early stop on held-out CE | 8 000 steps (RLinf) would take ~18 h on one 5090 |
 | Augmentation | off initially; turned on only if step 5 shows memorisation | not in paper |
 | Cross-fitting | not used (out of scope for now) | decided 2026-10-12 |
 | Advantage | N = 50 frames (1 s) lookahead; top 40 % positive | Paper (post-training on rollouts) |
