@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 from collections.abc import Sequence
 from functools import lru_cache
@@ -377,20 +378,37 @@ class SeriesPanel:
 # Video
 # ---------------------------------------------------------------------------------------------------------------------
 class Mp4Writer:
-    """Minimal H.264 mp4 writer (PyAV, libx264, yuv420p, constant-quality CRF)."""
+    """Minimal video writer (PyAV, yuv420p, constant quality): H.264 for `.mp4`, VP9 for `.webm`.
+
+    WebM/VP9 plays in browsers and VS Code (whose players lack H.264); MP4/H.264 is smaller and plays in desktop
+    players. The file is written as `<name>.tmp<suffix>` and renamed on close, so a reader never sees a half-written
+    video; MP4s get `+faststart` (index first) for players that stream the file.
+    """
 
     def __init__(self, path: Path | str, width: int, height: int, fps: int = 25, crf: int = 28, preset: str = "medium"):
         import av
 
         if width % 2 or height % 2:
-            raise ValueError(f"H.264/yuv420p needs even frame dimensions, got {width}x{height}")
+            raise ValueError(f"yuv420p needs even frame dimensions, got {width}x{height}")
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self._container = av.open(str(self.path), mode="w")
-        self._stream = self._container.add_stream("libx264", rate=fps)
+        self._tmp = self.path.with_name(f"{self.path.stem}.tmp{self.path.suffix}")
+        webm = self.path.suffix.lower() == ".webm"
+        options = {"movflags": "+faststart"} if not webm else {}
+        self._container = av.open(str(self._tmp), mode="w", options=options)
+        self._stream = self._container.add_stream("libvpx-vp9" if webm else "libx264", rate=fps)
         self._stream.width, self._stream.height = width, height
         self._stream.pix_fmt = "yuv420p"
-        self._stream.options = {"crf": str(crf), "preset": preset}
+        if webm:  # VP9's CRF scale is 0-63; +6 gives about the same quality as the x264 value
+            self._stream.options = {
+                "crf": str(crf + 6),
+                "b": "0",
+                "deadline": "realtime",
+                "cpu-used": "8",
+                "row-mt": "1",
+            }
+        else:
+            self._stream.options = {"crf": str(crf), "preset": preset}
         self._av = av
         self.frames = 0
 
@@ -404,6 +422,7 @@ class Mp4Writer:
         for packet in self._stream.encode():
             self._container.mux(packet)
         self._container.close()
+        os.replace(self._tmp, self.path)
 
     def __enter__(self) -> Mp4Writer:
         return self

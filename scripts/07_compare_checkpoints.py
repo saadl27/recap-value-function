@@ -1,4 +1,4 @@
-"""Compare checkpoints on the same episodes: one mp4 per episode (3 cameras + one V(t) panel per checkpoint, shared
+"""Compare checkpoints on the same episodes: one video per episode (3 cameras + one V(t) panel per checkpoint, shared
 cursor) and one PNG per split with every checkpoint's V(t) overlaid.
 
 Values come from `06_infer_values.py` runs, one per checkpoint, scored on the same episodes. With human interventions
@@ -46,6 +46,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--returns-tag", default="c2229")
     p.add_argument("--out-dir", type=Path, default=None)
     p.add_argument("--no-video", action="store_true")
+    p.add_argument(
+        "--video-format",
+        choices=["webm", "mp4"],
+        default="webm",
+        help="webm (VP9: plays in browsers and VS Code) or mp4 (H.264: smaller, desktop players)",
+    )
     p.add_argument("--seed", type=int, default=0)
     return p.parse_args()
 
@@ -193,7 +199,7 @@ def main() -> None:
         left = f"ep {e:04d} · {split} · {groups.get(e)}"
         sub = args.out_dir / ("heldout" if e in heldout else "train")
         sub.mkdir(exist_ok=True)
-        out = sub / f"ep_{e:04d}.mp4"
+        out = sub / f"ep_{e:04d}.{args.video_format}"
         frames = np.arange(0, T, 2)  # every 2nd frame at 25 fps = real time
         height = HEADER_H + IMAGE_SIZE + PANEL_H * len(panels)
         with Mp4Writer(out, width, height, fps=25, crf=26) as w:
