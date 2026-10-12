@@ -1,7 +1,8 @@
 """Raw-dataset validation, frame/episode tables and the mp4 -> per-episode JPEG/HDF5 frame store.
 
-The HF dataset stores each camera as one H.264 mp4 with all episodes concatenated. We decode each camera once,
-sequentially, map every decoded frame to `(episode, frame_index)` through the episode spans in `meta/episodes`,
+The HF dataset stores each camera as H.264 mp4(s): one file with all episodes concatenated (main dataset) or one file
+per episode (DAgger dataset); `meta/episodes` says which file and time span holds each episode. We decode each camera
+file by file, sequentially, map every decoded frame to `(episode, frame_index)` through those episode spans,
 assert that every frame of every requested episode is hit exactly once, and write one HDF5 file per episode holding
 the JPEG bytes of the three cameras (`docs/conventions.md` -> "Frame store").
 """
@@ -32,6 +33,7 @@ from PIL import Image
 
 from recap_vf import paths
 from recap_vf.constants import (
+    ALL_EPISODES_SUCCEED,
     CAMERAS,
     DATASET_REPO_ID,
     FPS,
@@ -107,8 +109,16 @@ def load_raw_frames(raw_dir: Path = paths.RAW_DIR) -> pa.Table:
     return pa.concat_tables([pq.read_table(f, columns=cols) for f in files])
 
 
-def build_episode_table(raw_episodes: pd.DataFrame) -> pd.DataFrame:
-    """Contract `episodes.parquet`: episode_index, length, success (bool), dataset_from_index, dataset_to_index."""
+def build_episode_table(raw_episodes: pd.DataFrame, assume_success: bool = ALL_EPISODES_SUCCEED) -> pd.DataFrame:
+    """Contract `episodes.parquet`: episode_index, length, success (bool), dataset_from_index, dataset_to_index.
+
+    `assume_success`: the metadata has no `success` column because every episode succeeds (see constants.DATASETS).
+    """
+    raw_episodes = raw_episodes.copy()
+    if "success" not in raw_episodes.columns:
+        if not assume_success:
+            raise DataValidationError("meta/episodes has no `success` column")
+        raw_episodes["success"] = True
     df = raw_episodes[EPISODE_TABLE_COLUMNS].copy()
     for c in ("episode_index", "length", "dataset_from_index", "dataset_to_index"):
         df[c] = df[c].astype(np.int64)
@@ -134,33 +144,59 @@ def build_frame_table(raw_frames: pa.Table) -> pa.Table:
 
 @dataclass
 class VideoSpans:
-    """Where each episode lives inside one camera's concatenated mp4 (positions == episode_index)."""
+    """Where the episodes of one mp4 file of one camera live inside it (position i = episode `episodes[i]`)."""
 
     camera: str
     video_path: str  # relative to the dataset root, e.g. videos/observation.images.top/chunk-000/file-000.mp4
-    from_ts: np.ndarray  # float64 [E]
-    to_ts: np.ndarray  # float64 [E]
-    lengths: np.ndarray  # int64 [E]
+    from_ts: np.ndarray  # float64 [E_file]
+    to_ts: np.ndarray  # float64 [E_file]
+    lengths: np.ndarray  # int64 [E_file]
+    episodes: np.ndarray | None = None  # int64 [E_file] global episode index of each position (None: 0..E_file-1)
+
+    def __post_init__(self) -> None:
+        if self.episodes is None:
+            self.episodes = np.arange(len(self.lengths), dtype=np.int64)
+
+
+def video_spans_by_file(raw_episodes: pd.DataFrame, camera: str, info: dict | None = None) -> list[VideoSpans]:
+    """Episode spans of one camera, one `VideoSpans` per mp4 file, in episode order.
+
+    Each file must hold a contiguous, increasing run of episodes (true for LeRobot v3 exports), so decoding the files
+    in this order yields the episodes in order.
+    """
+    key = VIDEO_KEYS[camera]
+    if not np.array_equal(raw_episodes["episode_index"].to_numpy(), np.arange(len(raw_episodes))):
+        raise DataValidationError("episode_index is not 0..E-1 in episode order")
+    template = (info or {}).get("video_path", "videos/{video_key}/chunk-{chunk_index:03d}/file-{file_index:03d}.mp4")
+    chunk = raw_episodes[f"videos/{key}/chunk_index"].to_numpy(np.int64)
+    file = raw_episodes[f"videos/{key}/file_index"].to_numpy(np.int64)
+    new_file = np.r_[True, (chunk[1:] != chunk[:-1]) | (file[1:] != file[:-1])]
+    starts = np.flatnonzero(new_file)
+    ends = np.r_[starts[1:], len(raw_episodes)]
+    if len({(int(chunk[a]), int(file[a])) for a in starts}) != len(starts):
+        raise DataValidationError(f"{camera}: the episodes of one mp4 file are not contiguous")
+    out = []
+    for a, b in zip(starts, ends, strict=True):
+        rows = raw_episodes.iloc[a:b]
+        out.append(
+            VideoSpans(
+                camera=camera,
+                video_path=template.format(video_key=key, chunk_index=int(chunk[a]), file_index=int(file[a])),
+                from_ts=rows[f"videos/{key}/from_timestamp"].to_numpy(np.float64),
+                to_ts=rows[f"videos/{key}/to_timestamp"].to_numpy(np.float64),
+                lengths=rows["length"].to_numpy(np.int64),
+                episodes=rows["episode_index"].to_numpy(np.int64),
+            )
+        )
+    return out
 
 
 def video_spans(raw_episodes: pd.DataFrame, camera: str, info: dict | None = None) -> VideoSpans:
-    """Episode spans of one camera; raises if the episodes span several mp4 files (not the case for this dataset)."""
-    key = VIDEO_KEYS[camera]
-    chunk = raw_episodes[f"videos/{key}/chunk_index"].to_numpy()
-    file = raw_episodes[f"videos/{key}/file_index"].to_numpy()
-    if len(np.unique(chunk)) != 1 or len(np.unique(file)) != 1:
-        raise NotImplementedError(f"{camera}: episodes spread over several mp4 files; only one file is supported")
-    template = (info or {}).get("video_path", "videos/{video_key}/chunk-{chunk_index:03d}/file-{file_index:03d}.mp4")
-    rel = template.format(video_key=key, chunk_index=int(chunk[0]), file_index=int(file[0]))
-    if not np.array_equal(raw_episodes["episode_index"].to_numpy(), np.arange(len(raw_episodes))):
-        raise DataValidationError("episode_index is not 0..E-1 in episode order")
-    return VideoSpans(
-        camera=camera,
-        video_path=rel,
-        from_ts=raw_episodes[f"videos/{key}/from_timestamp"].to_numpy(np.float64),
-        to_ts=raw_episodes[f"videos/{key}/to_timestamp"].to_numpy(np.float64),
-        lengths=raw_episodes["length"].to_numpy(np.int64),
-    )
+    """Episode spans of one camera stored as a single mp4 file; raises if the episodes span several files."""
+    spans = video_spans_by_file(raw_episodes, camera, info)
+    if len(spans) != 1:
+        raise NotImplementedError(f"{camera}: episodes spread over {len(spans)} mp4 files; use video_spans_by_file")
+    return spans[0]
 
 
 def validate_tables(episodes: pd.DataFrame, frames: pa.Table, spans: Sequence[VideoSpans] = (), fps: int = FPS) -> dict:
@@ -211,20 +247,33 @@ def validate_tables(episodes: pd.DataFrame, frames: pa.Table, spans: Sequence[Vi
         "video": {},
     }
     for sp in spans:
+        where = sp.camera if len(spans) <= len(CAMERAS) else f"{sp.camera} {sp.video_path}"
         dur_err = np.abs((sp.to_ts - sp.from_ts) - sp.lengths / fps)
         gaps = sp.from_ts[1:] - sp.to_ts[:-1]
         if (np.diff(sp.from_ts) <= 0).any():
-            problems.append(f"{sp.camera}: from_timestamp is not strictly increasing with episode_index")
+            problems.append(f"{where}: from_timestamp is not strictly increasing with episode_index")
         if dur_err.max(initial=0) > 0.5 / fps:
-            problems.append(f"{sp.camera}: to-from differs from length/fps by up to {dur_err.max():.4f} s")
+            problems.append(f"{where}: to-from differs from length/fps by up to {dur_err.max():.4f} s")
         if len(gaps) and gaps.min() < -TIME_TOL:
-            problems.append(f"{sp.camera}: overlapping episode spans (min gap {gaps.min():.4f} s)")
-        summary["video"][sp.camera] = {
-            "video_path": sp.video_path,
-            "max_abs_duration_minus_length_over_fps_s": float(dur_err.max(initial=0)),
-            "max_abs_gap_between_episodes_s": float(np.abs(gaps).max(initial=0)),
-            "end_s": float(sp.to_ts[-1]) if len(sp.to_ts) else 0.0,
-        }
+            problems.append(f"{where}: overlapping episode spans (min gap {gaps.min():.4f} s)")
+        cam = summary["video"].setdefault(
+            sp.camera,
+            {
+                "video_files": 0,
+                "video_path": sp.video_path,
+                "max_abs_duration_minus_length_over_fps_s": 0.0,
+                "max_abs_gap_between_episodes_s": 0.0,
+                "end_s": 0.0,
+            },
+        )
+        cam["video_files"] += 1
+        cam["max_abs_duration_minus_length_over_fps_s"] = max(
+            cam["max_abs_duration_minus_length_over_fps_s"], float(dur_err.max(initial=0))
+        )
+        cam["max_abs_gap_between_episodes_s"] = max(
+            cam["max_abs_gap_between_episodes_s"], float(np.abs(gaps).max(initial=0))
+        )
+        cam["end_s"] = max(cam["end_s"], float(sp.to_ts[-1]) if len(sp.to_ts) else 0.0)
     if problems:
         raise DataValidationError("table validation failed:\n  " + "\n  ".join(problems))
     return summary
@@ -236,7 +285,7 @@ def write_tables(raw_dir: Path = paths.RAW_DIR, cache_dir: Path = paths.CACHE_DI
     raw_eps = load_raw_episodes(raw_dir)
     episodes = build_episode_table(raw_eps)
     frames = build_frame_table(load_raw_frames(raw_dir))
-    spans = [video_spans(raw_eps, cam, info) for cam in CAMERAS]
+    spans = [sp for cam in CAMERAS for sp in video_spans_by_file(raw_eps, cam, info)]
     summary = validate_tables(episodes, frames, spans)
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -556,12 +605,28 @@ def is_episode_complete(path: Path, length: int, cameras: Sequence[str] = CAMERA
 
 
 def _camera_worker(
-    camera: str, source: str, spans: VideoSpans, episodes: list[int], quality: int, max_retries: int, out_q
+    camera: str,
+    files: list[tuple[str, VideoSpans]],
+    episodes: list[int],
+    quality: int,
+    max_retries: int,
+    out_q,
 ) -> None:
+    """Decode the requested episodes of one camera, file after file (files are in episode order)."""
     stats = CameraDecodeStats(camera=camera)
+    wanted = set(episodes)
     try:
-        for e, jpegs, _ in iter_camera_episodes(source, spans, episodes, quality, max_retries=max_retries, stats=stats):
-            out_q.put(("episode", e, jpegs))
+        for source, spans in files:
+            local = [i for i, e in enumerate(spans.episodes) if int(e) in wanted]
+            if not local:
+                continue
+            n_before = len(stats.episodes)
+            for i, jpegs, _ in iter_camera_episodes(
+                source, spans, local, quality, max_retries=max_retries, stats=stats
+            ):
+                out_q.put(("episode", int(spans.episodes[i]), jpegs))
+            for d in stats.episodes[n_before:]:  # positions in the file -> global episode index
+                d["episode_index"] = int(spans.episodes[d["episode_index"]])
         out_q.put(("done", None, asdict(stats)))
     except BaseException:  # noqa: BLE001 - forward everything to the parent
         out_q.put(("error", None, traceback.format_exc()))
@@ -623,28 +688,32 @@ def extract_frames(
         result["wall_time_s"] = time.time() - t0
         return result
 
-    sources = {}
+    todo_set = set(todo)
+    sources: dict[str, list[tuple[str, VideoSpans]]] = {}
     for cam in cameras:
-        sp = video_spans(raw_eps, cam, info)
-        if source == "url":
-            sources[cam] = (video_url(sp.video_path, revision=revision), sp)
-        else:
+        sources[cam] = []
+        for sp in video_spans_by_file(raw_eps, cam, info):
+            if not todo_set & {int(e) for e in sp.episodes}:
+                continue
+            if source == "url":
+                sources[cam].append((video_url(sp.video_path, revision=revision), sp))
+                continue
             base = Path(raw_dir) if source == "local" else Path(source)
             p = base / sp.video_path
             if not p.is_file():
                 raise FileNotFoundError(f"{p} missing; run scripts/01_download.py (full) or use --source url")
-            sources[cam] = (str(p), sp)
+            sources[cam].append((str(p), sp))
 
     ctx = mp.get_context("spawn")
     queues = {cam: ctx.Queue(maxsize=queue_size) for cam in cameras}
     procs = {
         cam: ctx.Process(
             target=_camera_worker,
-            args=(cam, src, sp, todo, quality, max_retries, queues[cam]),
+            args=(cam, files, todo, quality, max_retries, queues[cam]),
             name=f"decode-{cam}",
             daemon=True,
         )
-        for cam, (src, sp) in sources.items()
+        for cam, files in sources.items()
     }
     for p in procs.values():
         p.start()

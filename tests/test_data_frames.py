@@ -218,3 +218,33 @@ def test_extract_frames_refuses_missing_frames(tmp_path):
         fr.extract_frames([1, 2], source="local", raw_dir=raw, cache_dir=cache, frames_dir=store)
     assert (store / "ep_0001.h5").is_file()  # complete episodes before the failure are kept
     assert not (store / "ep_0002.h5").exists() and not list(store.glob("*.tmp"))
+
+
+def test_video_spans_one_file_per_episode_and_missing_success():
+    # DAgger export: every episode in its own mp4 (file_index = episode), timestamps restart at 0, no success column
+    raw_eps, raw_frames = _raw_tables([5, 3, 4], [True, True, True])
+    for cam in CAMERAS:
+        key = VIDEO_KEYS[cam]
+        raw_eps[f"videos/{key}/file_index"] = np.arange(3)
+        raw_eps[f"videos/{key}/from_timestamp"] = 0.0
+        raw_eps[f"videos/{key}/to_timestamp"] = raw_eps["length"] / FPS
+    spans = fr.video_spans_by_file(raw_eps, "top")
+    assert [s.video_path for s in spans] == [
+        f"videos/observation.images.top/chunk-000/file-{i:03d}.mp4" for i in range(3)
+    ]
+    assert [s.episodes.tolist() for s in spans] == [[0], [1], [2]] and [int(s.lengths[0]) for s in spans] == [5, 3, 4]
+    with pytest.raises(NotImplementedError):
+        fr.video_spans(raw_eps, "top")
+    no_success = raw_eps.drop(columns="success")
+    with pytest.raises(fr.DataValidationError):
+        fr.build_episode_table(no_success, assume_success=False)
+    eps = fr.build_episode_table(no_success, assume_success=True)
+    assert eps["success"].all()
+    all_spans = [s for cam in CAMERAS for s in fr.video_spans_by_file(raw_eps, cam)]
+    summary = fr.validate_tables(eps, fr.build_frame_table(raw_frames), all_spans)
+    assert summary["video"]["top"]["video_files"] == 3
+    # the episodes of one file must be contiguous
+    bad = raw_eps.copy()
+    bad[f"videos/{VIDEO_KEYS['top']}/file_index"] = [0, 1, 0]
+    with pytest.raises(fr.DataValidationError):
+        fr.video_spans_by_file(bad, "top")

@@ -10,6 +10,7 @@ from recap_vf.advantage import (
     TIE_ATOL,
     compute_advantages,
     diagnostics,
+    intervention_indices,
     label,
     label_agreement,
     per_episode_summary,
@@ -258,3 +259,60 @@ def test_segments_and_agreement_and_diagnostics():
     per_ep = per_episode_summary(labelled, success)
     assert per_ep["success"].tolist() == [True, False]
     assert per_ep["length"].tolist() == [12, 7]
+
+
+# --- returns cut at human interventions -------------------------------------------------------------------------------
+
+
+def intervention_returns() -> tuple[pd.DataFrame, dict]:
+    lengths = [30, 22]
+    flags = np.zeros(sum(lengths), dtype=bool)
+    flags[8:12] = flags[18:21] = True  # episode 0: two takeovers (onsets 8 and 18)
+    flags[30 + 6 : 30 + 9] = True  # episode 1: one takeover (onset 6)
+    starts = np.array([0, 30])
+    episodes = pd.DataFrame(
+        {
+            "episode_index": [0, 1],
+            "length": lengths,
+            "success": [True, True],
+            "dataset_from_index": starts,
+            "dataset_to_index": starts + lengths,
+        }
+    )
+    return compute_returns_table(episodes, 40.0, interventions=pd.Series(flags), c_interv=40.0)
+
+
+@pytest.mark.parametrize("use_z", [True, False])
+def test_perfect_value_gives_zero_advantage_across_cuts(use_z):
+    # If the window crossed a cut, A would jump by C/Z there; with V = g it must be 0 everywhere.
+    returns, meta = intervention_returns()
+    adv = compute_advantages(values_from(returns, returns["return_norm"]), returns, N, z=meta["Z"] if use_z else None)
+    np.testing.assert_allclose(adv["advantage"], 0.0, atol=1e-6)
+
+
+def test_window_stops_at_the_cut():
+    returns, meta = intervention_returns()
+    z = meta["Z"]
+    adv = compute_advantages(values_from(returns, np.full(len(returns), -0.5)), returns, N, z=z)
+    g = returns["return_raw"].to_numpy() / z
+    reaches_cut = returns["stretch_frame"].to_numpy() + N >= returns["stretch_length"].to_numpy()
+    # frames 3..7 of episode 0 reach the first cut (onset 8): no value after it, reward sum = return to the cut
+    assert reaches_cut[3:8].all() and not reaches_cut[2]
+    np.testing.assert_array_equal(adv["value_next"].to_numpy()[reaches_cut], 0.0)
+    np.testing.assert_allclose(adv["reward_sum"].to_numpy()[reaches_cut], g[reaches_cut])
+    np.testing.assert_allclose(adv["reward_sum"].to_numpy()[~reaches_cut], -N / z)
+    assert adv.loc[7, "reward_sum"] == pytest.approx(-40.0 / z)  # the penalty frame itself
+
+
+def test_human_frames_forced_positive():
+    returns, meta = intervention_returns()
+    human = intervention_indices(returns)
+    assert human == set(np.flatnonzero(returns["intervention"].to_numpy()).tolist()) and len(human) == 10
+    rng = np.random.default_rng(0)
+    adv = compute_advantages(values_from(returns, rng.uniform(-1, 0, len(returns))), returns, N, z=meta["Z"])
+    labelled, info = label(adv, 0.4, human)
+    ind = labelled["indicator"].to_numpy()
+    robot = ~returns["intervention"].to_numpy()
+    assert ind[~robot].all()
+    assert abs(ind[robot].mean() - 0.4) <= 1 / robot.sum()  # the threshold is set on the robot's own frames
+    assert intervention_indices(make_returns([5], [True])[0]) == set()

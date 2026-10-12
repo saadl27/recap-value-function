@@ -49,6 +49,7 @@ Everything must stay portable: no hard-coded absolute paths, GPU memory–hungry
 |---|---|---|
 | `RECAP_DATA_ROOT` | `<repo>/data` | `raw/` HF download, `cache/` derived artefacts |
 | `RECAP_RUNS_ROOT` | `<repo>/runs` | one sub-directory per training / labelling run |
+| `RECAP_DATASET` | `20h_fullft_eval_success` | which dataset (`constants.DATASETS`); other datasets use `data/raw/<name>/` and `data/cache/<name>/` |
 
 Both directories are git-ignored. Never write outside them (except `reports/`).
 
@@ -82,6 +83,10 @@ All tabular artefacts are **parquet**, keyed by the dataset's global frame `inde
 | Advantages | 6 | `runs/<run>/advantages_{N}_{p}.parquet` + `.json` | parquet: `index, episode_index, frame_index, value, value_next, reward_sum, advantage, indicator:bool`; json: `{"N", "p_pos", "epsilon", "returns_tag", "Z", …}` |
 
 The default returns tag is `c2229` (C_fail = 2229 = longest episode, see [step 2](steps/02_returns.md)).
+Datasets with human interventions ([interventions.md](interventions.md)) have returns tables under
+`data/cache/<dataset>/returns_i{C_interv}.*` with four extra parquet columns: `intervention:bool`,
+`stretch_index`, `stretch_frame`, `stretch_length` (the part of the episode between two takeovers; returns and the
+advantage window are cut there). The JSON adds `c_interv`, `num_interventions`, `num_stretches`, ….
 
 ## Batch contract (dataset → model)
 

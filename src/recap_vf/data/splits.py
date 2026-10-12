@@ -1,7 +1,8 @@
 """Reproducible episode splits: a stratified held-out set and 5 stratified cross-fitting folds.
 
 Strata = success flag x episode-length quantile bin (computed within each success class), so that held-out and
-every fold have the same success rate and a representative length distribution.
+every fold have the same success rate and a representative length distribution. Datasets where every episode succeeds
+use another class column instead (e.g. the number of human interventions, capped, for DAgger rollouts).
 """
 
 from __future__ import annotations
@@ -19,10 +20,10 @@ NUM_FOLDS = 5
 LENGTH_BINS = 4
 
 
-def length_strata(episodes: pd.DataFrame, n_length_bins: int = LENGTH_BINS) -> pd.Series:
-    """Stratum label per episode: `success * n_length_bins + length quantile bin within that success class`."""
+def length_strata(episodes: pd.DataFrame, n_length_bins: int = LENGTH_BINS, class_column: str = "success") -> pd.Series:
+    """Stratum label per episode: `class * n_length_bins + length quantile bin within that class`."""
     labels = pd.Series(0, index=episodes.index, dtype=np.int64)
-    for s, grp in episodes.groupby("success"):
+    for s, grp in episodes.groupby(class_column):
         k = min(n_length_bins, len(grp))
         # rank first so ties never collapse bins; deterministic (ties broken by episode order)
         q = pd.qcut(grp["length"].rank(method="first"), k, labels=False) if k > 1 else 0
@@ -46,26 +47,28 @@ def make_splits(
     heldout_frac: float = HELDOUT_FRAC,
     n_folds: int = NUM_FOLDS,
     n_length_bins: int = LENGTH_BINS,
+    class_column: str = "success",
 ) -> dict:
-    """Build the `splits.json` dict from an episode table with columns `episode_index, length, success`.
+    """Build the `splits.json` dict from an episode table with columns `episode_index, length, <class_column>`.
 
-    heldout: round(heldout_frac * E) episodes, allocated to success classes then to length bins by largest remainder.
+    `class_column` (default `success`) is the outer stratification: a small non-negative integer or bool per episode.
+    heldout: round(heldout_frac * E) episodes, allocated to classes then to length bins by largest remainder.
     folds: all episodes, independent of heldout; members of each stratum are shuffled and dealt round-robin with a
     counter that continues across strata, so fold sizes differ by <= 1 overall, per success class and per stratum.
     """
-    eps = episodes[["episode_index", "length", "success"]].reset_index(drop=True).copy()
-    eps["success"] = eps["success"].astype(bool)
-    eps["stratum"] = length_strata(eps, n_length_bins)
+    eps = episodes[["episode_index", "length", class_column]].reset_index(drop=True).copy()
+    eps["cls"] = eps[class_column].astype(np.int64)
+    eps["stratum"] = length_strata(eps, n_length_bins, "cls")
     rng = np.random.default_rng(seed)
 
     # ---- held-out: success class first, then length bins inside each class
     n_heldout = int(round(heldout_frac * len(eps)))
-    classes = sorted(eps["success"].unique())
-    class_sizes = np.array([(eps["success"] == c).sum() for c in classes])
+    classes = sorted(eps["cls"].unique())
+    class_sizes = np.array([(eps["cls"] == c).sum() for c in classes])
     class_quota = _largest_remainder(class_sizes, heldout_frac, n_heldout)
     heldout: list[int] = []
     for c, cq in zip(classes, class_quota, strict=True):
-        strata = sorted(eps.loc[eps["success"] == c, "stratum"].unique())
+        strata = sorted(eps.loc[eps["cls"] == c, "stratum"].unique())
         sizes = np.array([(eps["stratum"] == s).sum() for s in strata])
         for s, q in zip(strata, _largest_remainder(sizes, cq / sizes.sum(), int(cq)), strict=True):
             members = eps.loc[eps["stratum"] == s, "episode_index"].to_numpy()
@@ -89,7 +92,7 @@ def make_splits(
         "folds": {k: sorted(v) for k, v in folds.items()},
         "heldout_frac": heldout_frac,
         "n_length_bins": n_length_bins,
-        "stratified_on": "success x length quantile (within success class)",
+        "stratified_on": f"{class_column} x length quantile (within {class_column} class)",
     }
 
 

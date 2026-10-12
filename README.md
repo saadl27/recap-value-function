@@ -124,6 +124,7 @@ optional `scripts/remote.sh` helper are in [conventions → Machines](docs/conve
 | Augmentation | none | not in paper; decided 2026-10-12 |
 | Cross-fitting | baseline: not used · proposed v2: 5 folds, every episode labelled by a model that never saw it | baseline memorises train outcomes from step ~750 ([method v2](docs/method_v2.md)) |
 | Advantage | N = 50 frames (1 s) lookahead; top 40 % positive | Paper (post-training on rollouts) |
+| Human interventions ([DAgger data](https://huggingface.co/datasets/DreamMachines/actuator_unboxing_1h_HQ_dagger_rollouts), `RECAP_DATASET=actuator_unboxing_1h_HQ_dagger_rollouts`) | −C before each takeover, −1 elsewhere, return-to-go **cut at the next takeover**; advantage window stops there; human frames forced positive; run with `scripts/run_dagger_pipeline.sh` | each penalty blames only the frames that led to it ([interventions](docs/interventions.md)) |
 | Evaluation | qualitative on held-out episodes: V drops before failure, rises on recovery | Paper only evaluates qualitatively |
 
 ## References

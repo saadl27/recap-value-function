@@ -7,6 +7,9 @@ Per episode of length T, with g_t = G_t / Z (normalised return-to-go) and V_t th
     A_t = reward_sum_t + value_next_t - V_t
 
 which is the paper's  sum_{t'=t}^{t+N-1} r_t' + V(o_{t+N}) - V(o_t)  in normalised units (gamma = 1).
+With human interventions the returns table carries `stretch_frame` / `stretch_length` (see `recap_vf.returns`): the
+window then stops at the next takeover instead of the episode end (T above becomes the stretch length), consistent
+with returns that are cut there. Human frames are labelled positive with `forced_positive` (`intervention_indices`).
 One dataset-wide threshold eps = quantile(A, 1 - p_pos) turns A into the indicator I_t = 1[A_t >= eps].
 Everything is vectorised over the whole (index-sorted, episode-contiguous) table: no Python loop over frames.
 """
@@ -62,6 +65,8 @@ def compute_advantages(
     `returns`: the step-2 returns table (`index, episode_index, frame_index, episode_length, return_norm`, and
     `return_raw` when `z` is given). With `z` (the returns JSON's Z, never recomputed) g_t = return_raw / Z in float64,
     which makes reward_sum = -N/Z exactly; without it the float32 `return_norm` column is used.
+    If `returns` has `stretch_frame` and `stretch_length` (returns cut at human interventions), the lookahead never
+    crosses a cut: a window that reaches it sums the rewards up to the cut and adds no value after it.
     Joined on the global `index`. Returns the contract columns minus `indicator`, sorted by `index`.
     """
     lookahead = int(lookahead)
@@ -81,6 +86,9 @@ def compute_advantages(
     r_cols = ["index", "episode_index", "frame_index", "episode_length", "return_norm"]
     if z is not None:
         r_cols.append("return_raw")
+    cut = {"stretch_frame", "stretch_length"} <= set(returns.columns)
+    if cut:
+        r_cols += ["stretch_frame", "stretch_length"]
     merged = values[["index", "episode_index", "frame_index", "value"]].merge(
         returns[r_cols].rename(columns={"episode_index": "_ep", "frame_index": "_fi"}),
         on="index",
@@ -115,7 +123,10 @@ def compute_advantages(
         g = merged["return_norm"].to_numpy(np.float64)
 
     n = len(merged)
-    has_next = fi + lookahead < length
+    if cut:  # stretches are contiguous runs of frames, so row i + N is frame t + N of the same stretch here
+        has_next = merged["stretch_frame"].to_numpy(np.int64) + lookahead < merged["stretch_length"].to_numpy(np.int64)
+    else:
+        has_next = fi + lookahead < length
     j = np.minimum(np.arange(n) + lookahead, max(n - 1, 0))
     value_next = np.where(has_next, v[j], 0.0)
     if z is not None:
@@ -135,6 +146,13 @@ def compute_advantages(
             "advantage": advantage,
         }
     )
+
+
+def intervention_indices(returns: pd.DataFrame) -> set[int]:
+    """Global indices of human-controlled frames (RECAP labels human corrections positive); empty if no flag."""
+    if "intervention" not in returns.columns:
+        return set()
+    return set(returns.loc[returns["intervention"].astype(bool), "index"].astype(np.int64).tolist())
 
 
 # ---------------------------------------------------------------------------------------------------------------------

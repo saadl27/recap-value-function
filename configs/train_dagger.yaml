@@ -1,0 +1,46 @@
+# Value function on the DAgger rollouts with human interventions (docs/interventions.md).
+# Same recipe as configs/train_default.yaml; only the data and the step budget differ.
+#   RECAP_DATASET=actuator_unboxing_1h_HQ_dagger_rollouts uv run python scripts/04_train_value.py --config configs/train_dagger.yaml
+run_name: vf_dagger_i1060_s0
+seed: 0
+
+# data (null paths -> defaults from recap_vf.paths, which follow RECAP_DATASET)
+dataset: actuator_unboxing_1h_HQ_dagger_rollouts   # refuses to run if RECAP_DATASET selects another dataset
+returns_tag: i1060            # returns cut at each takeover, C_interv = 1060 (scripts/02_compute_intervention_returns.py)
+train_episodes: null          # null -> splits["train"] (204 episodes)
+val_heldout_episodes: null    # null -> splits["heldout"] (36 episodes)
+val_train_num_episodes: 120   # fixed random train episodes for the memorisation gap
+val_train_seed: 0
+val_frame_stride: 10
+num_workers: 12
+eval_num_workers: 8
+prefetch_factor: 4
+mp_context: forkserver
+
+model:
+  vision_backbone: google/siglip2-so400m-patch14-224
+  language_backbone: unsloth/gemma-3-270m   # ungated mirror of google/gemma-3-270m (identical weights)
+  freeze_vision: false
+  gradient_checkpointing: true
+
+# optimisation: identical to the baseline
+steps: 850                    # cap ~ one pass over the ~218 k train frames at batch 256 (same rule as the baseline)
+global_batch: 256
+micro_batch: 32               # x grad accumulation 8
+lr_backbone: 5.0e-5
+lr_new: 1.0e-4
+weight_decay: 0.0
+betas: [0.9, 0.95]
+eps: 1.0e-8
+warmup_steps: 200
+grad_clip: 1.0
+precision: bf16
+tf32: true
+
+# eval / checkpoints (best = min val_heldout CE, last = resumable); evals at 250, 500, 750 and 850
+eval_every: 250
+eval_batch: 64
+early_stop_patience: 3
+log_every: 10
+plot_heldout_per_class: 4
+plot_train_episodes: 4

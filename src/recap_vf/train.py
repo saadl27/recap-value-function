@@ -62,6 +62,7 @@ class TrainConfig:
     run_name: str = "vf_c2229_s0"
     seed: int = 0
     # --- data ---------------------------------------------------------------------------------------------------
+    dataset: str | None = None  # must equal RECAP_DATASET (constants.DATASET_NAME) when set; None -> no check
     returns_tag: str = "c2229"
     splits_file: str | None = None  # None -> paths.SPLITS_FILE
     frames_dir: str | None = None  # None -> paths.FRAMES_DIR
@@ -118,6 +119,11 @@ class TrainConfig:
             raise ValueError(f"mp_context={self.mp_context!r}, expected fork | forkserver | spawn")
         if self.steps < 1 or self.eval_every < 1 or self.log_every < 1:
             raise ValueError("steps, eval_every and log_every must be >= 1")
+        if self.dataset is not None and self.dataset != constants.DATASET_NAME:
+            raise ValueError(
+                f"config is for dataset {self.dataset!r} but RECAP_DATASET selects {constants.DATASET_NAME!r}; "
+                f"run with RECAP_DATASET={self.dataset}"
+            )
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> TrainConfig:
@@ -725,6 +731,7 @@ def _train(
     resolved = {
         "train": cfg.to_dict(),
         "resolved": {
+            "dataset": constants.DATASET_NAME,
             "returns": meta,
             "fail_value": fail_value,
             "splits_file": str(data.splits_file),

@@ -28,12 +28,13 @@ from recap_vf.advantage import (
     VALUE_COLUMNS,
     compute_advantages,
     diagnostics,
+    intervention_indices,
     label,
     per_episode_summary,
     segment_labels,
     smooth_values,
 )
-from recap_vf.constants import FPS, NUM_FRAMES
+from recap_vf.constants import FPS
 from recap_vf.returns import load_returns
 
 logger = logging.getLogger("06_compute_advantages")
@@ -49,6 +50,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     p.add_argument("--values", type=Path, default=None, help="values parquet (default runs/<run>/values.parquet)")
     p.add_argument("--returns-tag", default=None)
+    p.add_argument("--returns-dir", type=Path, default=None, help="directory of returns_{tag}.* (default data/cache)")
+    p.add_argument(
+        "--no-force-interventions",
+        action="store_true",
+        help="do not force human-intervention frames (returns column `intervention`) to I_t = True",
+    )
     p.add_argument("--lookahead", type=int, default=None, help="N (frames)")
     p.add_argument("--p-pos", type=float, default=None)
     p.add_argument("--grid-lookaheads", type=int, nargs="*", default=None)
@@ -75,6 +82,7 @@ def resolve(args: argparse.Namespace) -> dict:
         "segment_len": args.segment_len,
         "smooth_values": args.smooth_values,
         "forced_positive": str(args.forced_positive) if args.forced_positive else None,
+        "returns_dir": str(args.returns_dir) if args.returns_dir else None,
         "seed": args.seed,
     }
     cfg.update({k: v for k, v in over.items() if v is not None})
@@ -83,6 +91,9 @@ def resolve(args: argparse.Namespace) -> dict:
     cfg.setdefault("p_pos", 0.4)
     cfg.setdefault("tie_atol", 1e-6)
     cfg.setdefault("seed", 0)
+    cfg.setdefault("force_interventions_positive", True)
+    if args.no_force_interventions:
+        cfg["force_interventions_positive"] = False
     cfg.setdefault("num_example_episodes", 2)
     if args.write_grid:
         cfg["write_grid"] = True
@@ -295,13 +306,13 @@ def main() -> None:
     values = pd.read_parquet(values_path)
     if missing := [c for c in VALUE_COLUMNS if c not in values.columns]:
         raise KeyError(f"{values_path} lacks contract columns {missing}")
-    returns, rmeta = load_returns(cfg["returns_tag"])
+    returns, rmeta = load_returns(cfg["returns_tag"], cache_dir=cfg.get("returns_dir"))
     z = float(rmeta["Z"])
     success = returns.groupby("episode_index")["success"].first()
     n_eps = values["episode_index"].nunique()
-    if len(values) != NUM_FRAMES:
+    if len(values) != len(returns):
         logger.warning(
-            "values cover %d frames of %d episodes (full dataset: %d frames)", len(values), n_eps, NUM_FRAMES
+            "values cover %d frames of %d episodes (returns table: %d frames)", len(values), n_eps, len(returns)
         )
     model_ids = sorted(values["model_id"].astype(str).unique().tolist())
     logger.info(
@@ -314,10 +325,15 @@ def main() -> None:
         z,
     )
 
-    forced = None
+    forced: set[int] = set()
     if cfg.get("forced_positive"):
-        forced = {int(i) for i in json.loads(Path(cfg["forced_positive"]).read_text())}
-        logger.info("%d forced-positive frames", len(forced))
+        forced |= {int(i) for i in json.loads(Path(cfg["forced_positive"]).read_text())}
+    if cfg["force_interventions_positive"] and (human := intervention_indices(returns)):
+        forced |= human & set(values["index"].astype(np.int64).tolist())
+        logger.info("human-intervention frames forced positive (RECAP): %d", len(human))
+    forced = forced or None
+    if forced:
+        logger.info("%d forced-positive frames in total", len(forced))
 
     n0, p0 = cfg["lookahead"], cfg["p_pos"]
     grid_n = sorted({n0, *map(int, cfg.get("grid_lookaheads") or [])})
@@ -347,6 +363,8 @@ def main() -> None:
                     "returns_tag": cfg["returns_tag"],
                     "Z": z,
                     "c_fail": rmeta.get("c_fail"),
+                    "c_interv": rmeta.get("c_interv"),
+                    "num_forced_positive": len(forced or ()),
                     "values_file": values_ref,
                     "model_ids": model_ids,
                     "num_frames": int(len(labelled)),

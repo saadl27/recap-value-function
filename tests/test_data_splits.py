@@ -70,3 +70,24 @@ def test_small_dataset_and_io(tmp_path):
     assert load_splits(tmp_path / "s.json") == sp
     summary = split_summary(small, sp)
     assert summary.loc["all", "episodes"] == 10 and summary.loc["heldout", "episodes"] == 2
+
+
+def test_stratify_on_another_class_column():
+    # all-success data (DAgger): stratify on the number of interventions instead of success
+    rng = np.random.default_rng(3)
+    eps = pd.DataFrame(
+        {
+            "episode_index": np.arange(240),
+            "length": rng.integers(800, 1700, 240),
+            "success": True,
+            "interventions": rng.choice([0, 1, 2], 240, p=[0.12, 0.58, 0.30]),
+        }
+    )
+    sp = make_splits(eps, seed=0, class_column="interventions")
+    assert len(sp["heldout"]) == 36 and "interventions" in sp["stratified_on"]
+    held = eps.set_index("episode_index").loc[sp["heldout"], "interventions"].value_counts()
+    expected = eps["interventions"].value_counts() * 0.15
+    assert (abs(held.reindex(expected.index, fill_value=0) - expected) <= 1).all()
+    for fold in sp["folds"].values():
+        counts = eps.set_index("episode_index").loc[fold, "interventions"].value_counts()
+        assert (abs(counts.reindex(expected.index, fill_value=0) - eps["interventions"].value_counts() / 5) <= 1).all()

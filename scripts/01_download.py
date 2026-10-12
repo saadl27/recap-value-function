@@ -15,7 +15,7 @@ from huggingface_hub import HfApi, snapshot_download
 
 from recap_vf import paths
 from recap_vf.constants import CAMERAS, DATASET_REPO_ID
-from recap_vf.data.frames import load_raw_episodes, validate_info, video_spans
+from recap_vf.data.frames import load_raw_episodes, validate_info, video_spans_by_file
 
 log = logging.getLogger("01_download")
 
@@ -52,19 +52,26 @@ def main() -> None:
 
     videos = {}
     for cam in CAMERAS:
-        rel = video_spans(raw_eps, cam, info).video_path
-        p = args.local_dir / rel
-        videos[cam] = {"path": rel, "present": p.is_file(), "bytes": p.stat().st_size if p.is_file() else None}
-        if not args.meta_only and not p.is_file():
-            raise SystemExit(f"missing video {p}")
-        if p.is_file():
+        files = video_spans_by_file(raw_eps, cam, info)
+        present = [args.local_dir / sp.video_path for sp in files if (args.local_dir / sp.video_path).is_file()]
+        videos[cam] = {
+            "files": len(files),
+            "first_path": files[0].video_path,
+            "present": len(present),
+            "bytes": sum(p.stat().st_size for p in present),
+        }
+        if not args.meta_only and len(present) != len(files):
+            raise SystemExit(f"{cam}: {len(files) - len(present)} of {len(files)} video files missing")
+        if len(present) == len(files):
             import av
 
-            with av.open(str(p)) as c:
-                n = c.streams.video[0].frames
+            n = 0
+            for p in present:
+                with av.open(str(p)) as c:
+                    n += c.streams.video[0].frames
             videos[cam]["frames"] = n
             if n != info["total_frames"]:
-                raise SystemExit(f"{rel}: {n} frames in the stream, info.json says {info['total_frames']}")
+                raise SystemExit(f"{cam}: {n} frames in the streams, info.json says {info['total_frames']}")
     log.info("videos: %s", videos)
 
     try:
