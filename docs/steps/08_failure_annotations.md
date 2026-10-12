@@ -1,5 +1,7 @@
 # Step 8 — Failure-time annotations & localisation yardstick
 
+> **Not implemented** (decided 2026-10-12, no time). This spec documents the design of [method v2](../method_v2.md).
+
 **Depends on:** step 1 (frame store, on the workstation) and step 4 outputs (`runs/vf_c2229_s0/eval/*.parquet`, on
 the workstation). **No GPU.** **Parallel with:** the implementation of steps 9–10.
 **Owns:** `annotations/failure_times.csv` (git-tracked), `src/recap_vf/yardstick.py`, `scripts/08_contact_sheets.py`,

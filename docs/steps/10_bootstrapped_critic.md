@@ -1,5 +1,7 @@
 # Step 10 — Bootstrapped critic distilled from the OOF teacher, labels v2
 
+> **Not implemented** (decided 2026-10-12, no time). This spec documents the design of [method v2](../method_v2.md).
+
 **Depends on:** step 9 outputs (`runs/vf_c2229_cf/{values.parquet,value_probs.npy}`). **Runs on:** the RTX 5090,
 inside `scripts/run_v2_pipeline.sh` (see [step 9](09_crossfit.md#95-the-pipeline-script--scriptsrun_v2_pipelinesh-s---smoke)).
 Background: [method v2](../method_v2.md).

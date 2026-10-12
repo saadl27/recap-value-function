@@ -1,5 +1,7 @@
 # Step 11 — Compare labels: baseline vs v1 (cross-fit) vs v2 (bootstrapped)
 
+> **Not implemented** (decided 2026-10-12, no time). This spec documents the design of [method v2](../method_v2.md).
+
 **Depends on:** step 8 (both annotation phases), steps 9 and 10. **No GPU.** The values are small: rsync them from
 the workstation. Renders need the frame store, so make them on the workstation CPU.
 **Owns:** `scripts/11_compare.py`, `scripts/11_render_compare.py`, `reports/step_11_label_comparison.md`,

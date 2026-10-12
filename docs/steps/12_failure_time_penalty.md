@@ -1,5 +1,7 @@
 # Step 12 — Failure penalty at the mistake (GATED: do not start without Saad's go)
 
+> **Not implemented** (decided 2026-10-12, no time). This spec documents the design of [method v2](../method_v2.md).
+
 **Depends on:** steps 8–11. Background: [method v2](../method_v2.md).
 
 ## Idea

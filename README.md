@@ -60,15 +60,15 @@ an advantage-conditioned policy is later trained on.
 | 6 | [Advantage labelling](docs/steps/06_advantage.md) | 4 (5) | 🟨 code done (validated on fake values), real labels pending — [report](reports/step_06_advantage.md) |
 | 7 | [Evaluation](docs/steps/07_evaluation.md) | 6 | 🟨 tooling done, evaluation pending — [report](reports/step_07_evaluation.md) |
 
-**Method v2** ([rationale](docs/method_v2.md), approved 2026-10-12): cross-fitted MC teacher → bootstrapped critic.
+**Method v2** ([explanation](docs/method_v2.md)): cross-fitted MC teacher → bootstrapped critic. **Proposed, not implemented** (no time).
 
 | Step | Doc | Depends on | Status |
 |---|---|---|---|
-| 8 | [Failure annotations & yardstick](docs/steps/08_failure_annotations.md) | 1, 4 | 🟦 in progress |
-| 9 | [Cross-fitted critics → labels v1](docs/steps/09_crossfit.md) | 4, 6, 8 (S) | 🟦 in progress |
-| 10 | [Bootstrapped critic → labels v2](docs/steps/10_bootstrapped_critic.md) | 9 | 🟦 in progress |
-| 11 | [Label comparison](docs/steps/11_label_comparison.md) | 8, 9, 10 | ⬜ todo |
-| 12 | [Failure penalty at the mistake](docs/steps/12_failure_time_penalty.md) | 8–11 | ⏸ gated (Saad's decision) |
+| 8 | [Failure annotations & yardstick](docs/steps/08_failure_annotations.md) | 1, 4 | 📝 specified, not implemented |
+| 9 | [Cross-fitted critics → labels v1](docs/steps/09_crossfit.md) | 4, 6, 8 (S) | 📝 specified, not implemented |
+| 10 | [Bootstrapped critic → labels v2](docs/steps/10_bootstrapped_critic.md) | 9 | 📝 specified, not implemented |
+| 11 | [Label comparison](docs/steps/11_label_comparison.md) | 8, 9, 10 | 📝 specified, not implemented |
+| 12 | [Failure penalty at the mistake](docs/steps/12_failure_time_penalty.md) | 8–11 | 📝 idea only (gated) |
 
 Each agent writes its results to `reports/step_XX.md` (see [conventions](docs/conventions.md#reports)).
 
@@ -81,7 +81,6 @@ Each agent writes its results to `reports/step_XX.md` (see [conventions](docs/co
 ├── README.md                 ← you are here
 ├── CLAUDE.md                 ← short rules for coding agents working in this repo
 ├── pyproject.toml            ← single uv-managed environment
-├── annotations/              ← human/agent annotations of failure times (git-tracked, step 8)
 ├── docs/
 │   ├── background.md         ← RECAP paper summary, verified facts, reference implementations
 │   ├── conventions.md        ← code style, paths, file contracts between steps, reports
@@ -117,13 +116,13 @@ optional `scripts/remote.sh` helper are in [conventions → Machines](docs/conve
 |---|---|---|
 | Backbone | SigLIP2-so400m-patch14-224 + Gemma-3-270M (≈670M) | Matches paper ("670M VLM initialised from Gemma 3"); same as RLinf's open implementation |
 | Value head | 201 bins on [−1, 0], cross-entropy | Paper |
-| Estimator | baseline: Monte-Carlo returns (paper) · **v2**: student on 50-step distributional TD targets from the out-of-fold MC teacher | same estimand, lower-variance targets ([method v2](docs/method_v2.md)) |
+| Estimator | baseline: Monte-Carlo returns (paper) · proposed v2: student on 50-step distributional TD targets from the out-of-fold MC teacher | same estimand, lower-variance targets ([method v2](docs/method_v2.md)) |
 | Reward | −1 per frame, 0 at success end, −C_fail at failure end | Paper |
 | Normalisation | divide by \|min return in dataset\| | RLinf; maps to [−1, 0] |
 | Frames | all frames, uniformly sampled, training measured in steps | RLinf/OpenTau use all frames |
 | Training budget | ≤ one pass over train frames (2 100 steps × 256, ~4–5 h), constant LR, early stop on held-out CE | 8 000 steps (RLinf) would take ~18 h on one 5090 |
 | Augmentation | none | not in paper; decided 2026-10-12 |
-| Cross-fitting | baseline: not used · **v2: 5 folds**, every episode labelled by a model that never saw it | baseline memorises train outcomes from step ~750 ([method v2](docs/method_v2.md)) |
+| Cross-fitting | baseline: not used · proposed v2: 5 folds, every episode labelled by a model that never saw it | baseline memorises train outcomes from step ~750 ([method v2](docs/method_v2.md)) |
 | Advantage | N = 50 frames (1 s) lookahead; top 40 % positive | Paper (post-training on rollouts) |
 | Evaluation | qualitative on held-out episodes: V drops before failure, rises on recovery | Paper only evaluates qualitatively |
 

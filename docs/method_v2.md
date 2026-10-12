@@ -1,8 +1,18 @@
 # Method v2 — cross-fitted teacher + bootstrapped critic
 
-**Status:** approved by Saad on 2026-10-12, after the analysis of the baseline `vf_c2229_s0`. Steps 8–11 implement and
-evaluate it; step 12 is a gated follow-up. Everything not mentioned here stays as in the baseline (backbone, 201 bins
-on [−1, 0], reward, `C_fail = 2229`, `Z = 4457`, `N = 50` advantage, 40 % positive threshold, optimiser).
+**Status:** proposed, **not implemented** (no time; decided 2026-10-12). This page explains how to improve the
+baseline's labels and why. The detailed implementation specs are steps 8–12 in [`docs/steps/`](steps/).
+Everything not mentioned here stays as in the baseline (backbone, 201 bins on [−1, 0], reward, `C_fail = 2229`,
+`Z = 4457`, `N = 50` advantage, 40 % positive threshold, optimiser).
+
+**In one paragraph.** The baseline's Monte-Carlo targets give every frame of an episode that episode's outcome, so
+each label says "this episode failed", not "this action caused the failure". The trained critic still learns *where*
+things go wrong, because the same-looking states lead to different outcomes across episodes: on held-out episodes V
+drops at the mistake. On training episodes, though, the network memorises the outcomes and the localisation is lost.
+The fix has two stages:
+1. Score every episode with a model that never saw it (**cross-fitting**).
+2. Optionally, distil those values into one critic trained on **bootstrapped targets**, i.e. the teacher's value
+   one second later instead of the episode's outcome. These targets drop at the mistake and stay high before it.
 
 ## 1. Why: what the baseline does and does not do
 
@@ -87,7 +97,7 @@ held-out curves are roughly the ceiling. The expected gains are:
 | Student initialised from the pretrained backbones | Same as the baseline and the paper ("both the value function and policy are finetuned from the pre-trained checkpoint"). ROVE instead initialises its TD critic from the MC critic. |
 | **Not adopted (need Saad's decision)** | Expectile / optimistic value (ROVE): it changes what V estimates and needs a design for a distributional head. Iterating stage 2. TD(λ) mixtures. Penalty at the mistake (step 12). Web-data co-training. |
 
-## 4. Steps, owners and compute
+## 4. Implementation plan (specified, not built)
 
 | Step | What | GPU (RTX 5090) |
 |---|---|---|
@@ -97,9 +107,10 @@ held-out curves are roughly the ceiling. The expected gains are:
 | [11](steps/11_label_comparison.md) | Baseline vs v1 vs v2 on the yardstick, memorisation signals, label diagnostics, videos, blind sheets | none (renders on CPU) |
 | [12](steps/12_failure_time_penalty.md) | **Gated**: failure penalty at the mistake instead of at the takeover | — |
 
-Steps 9 and 10 run unattended as one resumable chain, `scripts/run_v2_pipeline.sh S`.
+Steps 9 and 10 were meant to run unattended as one resumable chain (`scripts/run_v2_pipeline.sh S`), about 16–18 h
+of RTX 5090 time with S = 500. None of it exists yet.
 
-## 5. How we will judge it (step 11)
+## 5. How it would be judged (step 11)
 1. On the **val_train** episodes, v1 and v2 should reach the held-out numbers of the yardstick: drop-at-mistake hit
    rate, drop size, pre-failure V and dips at fumbles. The baseline in-sample values should not.
 2. On held-out episodes, v1 and v2 should be at least as good as the baseline.

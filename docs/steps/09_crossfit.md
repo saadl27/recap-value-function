@@ -1,5 +1,7 @@
 # Step 9 — Cross-fitted MC critics (the teacher) and labels v1
 
+> **Not implemented** (decided 2026-10-12, no time). This spec documents the design of [method v2](../method_v2.md).
+
 **Depends on:** steps 1–4 and 6 (code), and `S` from [step 8](08_failure_annotations.md). **Runs on:** the RTX 5090
 (smoke tests on the laptop). Background: [method v2](../method_v2.md).
 **Owns:**

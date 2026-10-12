@@ -80,13 +80,8 @@ All tabular artefacts are **parquet**, keyed by the dataset's global frame `inde
 | Checkpoint | 4 | `runs/<run>/checkpoints/{best,last}/` | `model.safetensors` + `config.yaml` (full resolved config incl. returns tag & split) |
 | Values | 6 | `runs/<run>/values.parquet` | `index, episode_index, frame_index, value, value_std, model_id` (model_id = checkpoint/fold that scored this episode) |
 | Advantages | 6 | `runs/<run>/advantages_{N}_{p}.parquet` + `.json` | parquet: `index, episode_index, frame_index, value, value_next, reward_sum, advantage, indicator:bool`; json: `{"N", "p_pos", "epsilon", "returns_tag", "Z", …}` |
-| Annotations | 8 | `annotations/failure_times.csv` (**git-tracked**) | `episode_index, split, success, event, primary, t_start_s, t_end_s, confidence, annotator, description` (events: failure, fumble, stall, human, none, unclear) |
-| Fold splits | 9 | `data/cache/splits_cf{k}.json` | same schema as `splits.json` with `heldout = folds[k]`, `train` = the other folds, plus `crossfit_fold: k` |
-| Value distributions | 9 | `runs/<run>/value_probs.npy` | float16 `[n_rows, 201]` softmax; row i ↔ row i of `values.parquet` (sorted by `index`); dtype/shape/sha256 in `values.json` |
-| Bootstrapped targets | 10 | `runs/<teacher_run>/targets_td{N}.npy` + `.json` | float16 `[634 838, 201]`, row = global `index`; json: N, Z, teacher run, sha256 of `value_probs.npy`, clipping stats |
 
 The default returns tag is `c2229` (C_fail = 2229 = longest episode, see [step 2](steps/02_returns.md)).
-Method v2 run names ([method v2](method_v2.md)): fold models `vf_c2229_cf{k}`, OOF values `vf_c2229_cf`, bootstrapped student `vf_c2229_td_s0`.
 
 ## Batch contract (dataset → model)
 
@@ -119,9 +114,5 @@ Each step ends with `reports/step_XX_<name>.md`. Template:
 Figures go to `reports/figures/step_XX/` (PNG, small). Large artefacts stay in `data/` / `runs/`.
 
 ## Git
-- The orchestrator commits and pushes to GitHub. Agents do not commit or push, **except** agents of steps that
-  must run code on the workstation (4, 8, 9, 10): they commit **only the files their step owns, by explicit path**
-  (never `git add -A` / `git add .`), push, then `scripts/remote.sh update`. Commit messages end with the line
-  `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. If `.git/index.lock` exists, another agent is
-  committing: retry a few seconds later, never delete it.
+- The orchestrator commits and pushes to GitHub. Agents do not commit or push.
 - Never commit anything under `data/`, `runs/`, `.venv/`, or checkpoints.
