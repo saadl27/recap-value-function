@@ -6,8 +6,8 @@ __pycache__/
 .ruff_cache/
 
 # data & outputs (large, reproducible)
-data/
-runs/
+/data/
+/runs/
 *.safetensors
 *.pt
 *.h5
