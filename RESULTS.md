@@ -610,13 +610,54 @@ target g(t); orange shading: human control; red triangles: takeover penalties.
 ![V curves, held-out episodes](reports/figures/dagger/v_curves_heldout_steps_250.png)
 ![V curves, training episodes](reports/figures/dagger/v_curves_train_steps_250.png)
 
-**Videos**: the 3 cameras with V(t) underneath and a moving cursor; the header says when the human is in control.
-They are WebM (VP9), in [reports/figures/dagger/videos/](reports/figures/dagger/videos/).
+**Videos** (2× speed): the 3 cameras with V(t) underneath and a moving cursor; the header says when the human is in
+control. Full-speed WebM files are in [reports/figures/dagger/videos/](reports/figures/dagger/videos/).
 
-| | 0 takeovers | 1 takeover | 2+ takeovers |
-|---|---|---|---|
-| held-out | [206](reports/figures/dagger/videos/heldout/ep_0206.webm) · [209](reports/figures/dagger/videos/heldout/ep_0209.webm) | [50](reports/figures/dagger/videos/heldout/ep_0050.webm) · [61](reports/figures/dagger/videos/heldout/ep_0061.webm) | [23](reports/figures/dagger/videos/heldout/ep_0023.webm) · [157](reports/figures/dagger/videos/heldout/ep_0157.webm) |
-| train | [207](reports/figures/dagger/videos/train/ep_0207.webm) · [220](reports/figures/dagger/videos/train/ep_0220.webm) | [147](reports/figures/dagger/videos/train/ep_0147.webm) · [170](reports/figures/dagger/videos/train/ep_0170.webm) | [111](reports/figures/dagger/videos/train/ep_0111.webm) · [117](reports/figures/dagger/videos/train/ep_0117.webm) |
+#### Held-out episodes
+
+<p align="center">
+  <img src="reports/figures/dagger/clips/heldout_ep_0206.webp" width="49%" alt="heldout episode 206, 0 takeovers">
+  <img src="reports/figures/dagger/clips/heldout_ep_0209.webp" width="49%" alt="heldout episode 209, 0 takeovers">
+</p>
+
+*0 takeovers: episodes 206 and 209. Full videos: [ep 206](reports/figures/dagger/videos/heldout/ep_0206.webm), [ep 209](reports/figures/dagger/videos/heldout/ep_0209.webm).*
+
+<p align="center">
+  <img src="reports/figures/dagger/clips/heldout_ep_0050.webp" width="49%" alt="heldout episode 50, 1 takeover">
+  <img src="reports/figures/dagger/clips/heldout_ep_0061.webp" width="49%" alt="heldout episode 61, 1 takeover">
+</p>
+
+*1 takeover: episodes 50 and 61. Full videos: [ep 50](reports/figures/dagger/videos/heldout/ep_0050.webm), [ep 61](reports/figures/dagger/videos/heldout/ep_0061.webm).*
+
+<p align="center">
+  <img src="reports/figures/dagger/clips/heldout_ep_0023.webp" width="49%" alt="heldout episode 23, 2+ takeovers">
+  <img src="reports/figures/dagger/clips/heldout_ep_0157.webp" width="49%" alt="heldout episode 157, 2+ takeovers">
+</p>
+
+*2+ takeovers: episodes 23 and 157. Full videos: [ep 23](reports/figures/dagger/videos/heldout/ep_0023.webm), [ep 157](reports/figures/dagger/videos/heldout/ep_0157.webm).*
+
+#### Training episodes
+
+<p align="center">
+  <img src="reports/figures/dagger/clips/train_ep_0207.webp" width="49%" alt="train episode 207, 0 takeovers">
+  <img src="reports/figures/dagger/clips/train_ep_0220.webp" width="49%" alt="train episode 220, 0 takeovers">
+</p>
+
+*0 takeovers: episodes 207 and 220. Full videos: [ep 207](reports/figures/dagger/videos/train/ep_0207.webm), [ep 220](reports/figures/dagger/videos/train/ep_0220.webm).*
+
+<p align="center">
+  <img src="reports/figures/dagger/clips/train_ep_0147.webp" width="49%" alt="train episode 147, 1 takeover">
+  <img src="reports/figures/dagger/clips/train_ep_0170.webp" width="49%" alt="train episode 170, 1 takeover">
+</p>
+
+*1 takeover: episodes 147 and 170. Full videos: [ep 147](reports/figures/dagger/videos/train/ep_0147.webm), [ep 170](reports/figures/dagger/videos/train/ep_0170.webm).*
+
+<p align="center">
+  <img src="reports/figures/dagger/clips/train_ep_0111.webp" width="49%" alt="train episode 111, 2+ takeovers">
+  <img src="reports/figures/dagger/clips/train_ep_0117.webp" width="49%" alt="train episode 117, 2+ takeovers">
+</p>
+
+*2+ takeovers: episodes 111 and 117. Full videos: [ep 111](reports/figures/dagger/videos/train/ep_0111.webm), [ep 117](reports/figures/dagger/videos/train/ep_0117.webm).*
 
 Only step 250 is shown. Steps 500, 750 and 850 are rendered on the workstation
 (`curiosity:~/DreamMachines/runs/viz_dagger/`) and will replace these once copied over. Re-render with
