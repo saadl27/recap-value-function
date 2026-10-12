@@ -29,7 +29,11 @@ The paper only says "large". Its effect:
 - References: RLinf −300 (LIBERO), LeRobot PR −500, OpenTau −1000 with normaliser 1600 (≈ C_fail + max length).
 
 Our longest episode is a **failure** of 2229 frames; the longest success is 2077 frames.
-**Default: `C_fail = 2229` (= T_max), tag `c2229`** → `Z = 2228 + 2229 = 4457`; successes occupy
+**Default: `C_fail = 2229` (= T_max), tag `c2229`** — *our* choice, not the paper's (it gives no value). Any
+`C_fail > T_max_success − 1 = 2076` makes every failure frame worth less than every success frame (the strictest
+reading of "ensure that failed episodes have low values"); `C_fail = T_max` is a round, dataset-agnostic rule with
+that property. OpenTau's values (C = 1000, normaliser 1600) imply the same property.
+With it → `Z = 2228 + 2229 = 4457`; successes occupy
 `g ∈ [−0.466, 0]` (bins 107–200), failures `g ∈ [−1, −0.5]` (bins 0–100) — the two never overlap, and each still
 spans ~95–100 bins.
 Also produce **`c1115` (0.5 × T_max)** and **`c4458` (2 × T_max)** for a later ablation (cheap; only labels change).

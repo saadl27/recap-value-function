@@ -2,7 +2,7 @@
 
 | # | Question | Why it matters | Current assumption |
 |---|---|---|---|
-| 1 | **Which parts of the data are human recoveries from failed robot rollouts?** The export has `interventions=false` and the data has no intervention/recovery column. | RECAP forces human-correction frames to `I_t = True`, and they must not be scored as robot behaviour. | No interventions in this dataset; `forced_positive` hook ready in step 6 |
+| 1 | **Which parts of the data are human recoveries from failed robot rollouts?** The export has `interventions=false` and no intervention column. **Finding (step 1):** the tray gains exactly one actuator per episode, failures included, but failed episodes never show the placement and end mid-motion → after each failure a human completed the task and that segment was **cut** from this export. Can we get the export with interventions (`interventions=true`)? | RECAP forces human-correction frames to `I_t = True`. It also means a failure episode ends at the takeover moment, and the final arm pose is a strong outcome cue. | Recoveries absent; `forced_positive` hook ready in step 6 |
 | 2 | How does a **failed** episode end — timeout, operator stop, or right after the failure? Failures are longer (median 749 vs 586 frames, up to 2229). | Determines what V learns near the end of failures and how to choose `C_fail`. | Ends some time after the failure |
 | 3 | Preferred `C_fail` and positive fraction `p_pos`? | Both change the labels. | `C_fail = 2229` (T_max), `p_pos = 0.4`, ablations in steps 2/6 |
 | 4 | Are there episode **quality ratings** or failure timestamps? (the export options mention `include_qualities` / `include_unrated`) | Would give a quantitative check for step 7. | None available |
