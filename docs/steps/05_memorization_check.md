@@ -1,6 +1,6 @@
-# Step 5 — Memorisation check (and cross-fitting if needed)
+# Step 5 — Memorisation check
 
-**Depends on:** step 4. **Owns:** `scripts/05_memorization_report.py`, `scripts/05_train_crossfit.sh`,
+**Depends on:** step 4. **Owns:** `scripts/05_memorization_report.py`,
 `reports/step_05_memorization.md`, `reports/figures/step_05/`.
 
 ## Why this step exists
@@ -12,8 +12,8 @@ the actual mistake → the advantage inside that episode is flat noise → usele
 What we want: `V(o_t)` = expected outcome **given only what is observable at t**. Held-out episodes tell us what an
 honest model looks like; the gap between train and held-out tells us how much it memorised.
 
-The paper avoids this with much more data and web-data co-training. Neither the paper nor RLinf cross-fits; we only
-do it if the evidence below says we must.
+The paper avoids this with much more data and web-data co-training. **Cross-fitting is out of scope for now**
+(decision 2026-10-12); if memorisation shows up we fix it with checkpoint choice and regularisation only.
 
 ## Diagnostics (`scripts/05_memorization_report.py --run vf_c2229_s0 --ckpt best`)
 Run the selected checkpoint on `val_train` and `val_heldout` (same 120-episode, stride-10 sets as step 4) and on
@@ -36,19 +36,10 @@ Save figures under `reports/figures/step_05/` and a metrics table in the report.
   1. **Earlier checkpoint** (the gap often appears after the val-CE minimum). Cheap.
   2. **Regularised re-run**: `augment: true`, `head_dropout: 0.1`, `weight_decay: 0.01`, and/or fewer steps.
      One run (~same cost as step 4).
-  3. **Cross-fitting** (K = 5, folds from `splits.json`): train model *k* on folds ≠ *k*, label fold *k* with
-     model *k*. Every episode is then scored by a model that never saw its outcome.
-     - Use the regularised config if (2) helped at all.
-     - No held-out set is available for early stopping inside a fold: use a **fixed step count** = the best step found
-       in step 4 (or in (2)), scaled by the data-size ratio (640 vs 680 episodes → ~same).
-     - Cost: 5 × training. If too slow, K = 4 or fewer steps; say so in the report.
-     - `scripts/05_train_crossfit.sh` launches the folds sequentially as `vf_c2229_cf{k}`.
-     - Sanity: for each fold model, `val`-metrics on its own held-out fold should be similar to `val_heldout` of the
-       default run.
 
 ## Definition of done
 - [ ] All five diagnostics computed, figures + table in the report
-- [ ] A clear decision (single model / earlier checkpoint / regularised / cross-fit) with the numbers that justify it
+- [ ] A clear decision (single model / earlier checkpoint / regularised) with the numbers that justify it
 - [ ] If re-training was needed: the new runs exist, and the diagnostics re-run on them show the gap closed
-- [ ] The report states exactly which checkpoint(s) step 6 must use (`--run` / `--crossfit` arguments)
+- [ ] The report states exactly which checkpoint(s) step 6 must use (`--run` / `--ckpt` arguments)
 - [ ] `reports/step_05_memorization.md` written

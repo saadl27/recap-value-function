@@ -1,0 +1,316 @@
+{
+  "run": "dev_fake_oracle",
+  "values_file": "runs/dev_fake_oracle/values.parquet",
+  "model_ids": [
+    "fake:oracle"
+  ],
+  "config": {
+    "returns_tag": "c2229",
+    "lookahead": 50,
+    "p_pos": 0.4,
+    "grid_lookaheads": [
+      25,
+      50,
+      100
+    ],
+    "grid_p_pos": [
+      0.3,
+      0.4
+    ],
+    "write_grid": false,
+    "segment_len": 50,
+    "smooth_values": 5,
+    "forced_positive": null,
+    "tie_atol": 1e-06,
+    "figures": true,
+    "num_example_episodes": 2,
+    "seed": 0
+  },
+  "default": {
+    "threshold": {
+      "p_pos": 0.4,
+      "epsilon": 1.123354298471213e-09,
+      "tie_atol": 1e-06,
+      "num_frames": 634838,
+      "num_positive": 634838,
+      "positive_fraction": 1.0,
+      "positive_fraction_unforced": 1.0,
+      "ties_at_epsilon": 634838,
+      "num_forced_positive": 0,
+      "advantage_spread": 8.788910155210772e-08,
+      "advantage_quantiles": {
+        "min": -5.848129047691941e-08,
+        "q01": -5.848129047691941e-08,
+        "q05": -6.327226284574827e-09,
+        "q25": 1.123354298471213e-09,
+        "median": 1.123354298471213e-09,
+        "q75": 1.123354298471213e-09,
+        "q95": 1.1233543123490008e-09,
+        "q99": 1.0177055087545739e-08,
+        "max": 2.9407811075188306e-08
+      },
+      "degenerate": true,
+      "warnings": [
+        "advantage has (near-)zero spread (8.79e-08 <= tie_atol 1e-06): every frame is a tie, the threshold cannot separate frames -> 100.0% positive instead of 40%"
+      ]
+    },
+    "diagnostics": {
+      "num_frames": 634838,
+      "num_episodes": 800,
+      "positive_fraction": 1.0,
+      "positive_fraction_success_frames": 1.0,
+      "positive_fraction_failure_frames": 1.0,
+      "value_jitter_std": 1.9071172042348148e-08,
+      "advantage_std": 6.926848425755076e-09,
+      "jitter_to_advantage_std": 2.7532249690116837,
+      "value_jitter_robust": 2.114317612722516e-08,
+      "advantage_robust_std": 0.0,
+      "jitter_to_advantage_robust": Infinity,
+      "mean_run_length": 793.5475,
+      "median_run_length": 623.0,
+      "mean_run_length_positive": 793.5475,
+      "mean_run_length_negative": NaN,
+      "fraction_runs_le5": 0.0,
+      "fraction_frames_in_runs_le5": 0.0,
+      "advantage_mean_success": -1.986453609724973e-13,
+      "advantage_mean_failure": -8.941337772726881e-12,
+      "episode_positive_fraction_success": {
+        "episodes": 423,
+        "mean": 1.0,
+        "median": 1.0,
+        "q10": 1.0,
+        "q90": 1.0,
+        "num_all_positive": 423,
+        "num_all_negative": 0
+      },
+      "episode_positive_fraction_failure": {
+        "episodes": 377,
+        "mean": 1.0,
+        "median": 1.0,
+        "q10": 1.0,
+        "q90": 1.0,
+        "num_all_positive": 377,
+        "num_all_negative": 0
+      }
+    }
+  },
+  "sensitivity": [
+    {
+      "N": 25,
+      "p_pos": 0.3,
+      "epsilon": 5.616771492356065e-10,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 25,
+      "p_pos": 0.4,
+      "epsilon": 5.616771492356065e-10,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 50,
+      "p_pos": 0.3,
+      "epsilon": 1.123354298471213e-09,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 50,
+      "p_pos": 0.4,
+      "epsilon": 1.123354298471213e-09,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 100,
+      "p_pos": 0.3,
+      "epsilon": 2.246708596942426e-09,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 100,
+      "p_pos": 0.4,
+      "epsilon": 2.246708596942426e-09,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    }
+  ],
+  "sensitivity_table": "| N | p_pos | epsilon | positive_fraction | pos_frac_success | pos_frac_failure | agreement_vs_default | mean_run_length | degenerate |\n|---|---|---|---|---|---|---|---|---|\n| 25 | 0.3 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 25 | 0.4 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 50 | 0.3 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 50 | 0.4 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 100 | 0.3 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 100 | 0.4 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |",
+  "example_episodes": [
+    531,
+    674,
+    181,
+    244
+  ],
+  "default_smooth5": {
+    "threshold": {
+      "p_pos": 0.4,
+      "epsilon": 1.123354298471213e-09,
+      "tie_atol": 1e-06,
+      "num_frames": 634838,
+      "num_positive": 634838,
+      "positive_fraction": 1.0,
+      "positive_fraction_unforced": 1.0,
+      "ties_at_epsilon": 634838,
+      "num_forced_positive": 0,
+      "advantage_spread": 8.788910155210772e-08,
+      "advantage_quantiles": {
+        "min": -5.848129047691941e-08,
+        "q01": -5.848129047691941e-08,
+        "q05": -6.327226284574827e-09,
+        "q25": 1.123354298471213e-09,
+        "median": 1.123354298471213e-09,
+        "q75": 1.123354298471213e-09,
+        "q95": 1.1233543123490008e-09,
+        "q99": 1.0177055087545739e-08,
+        "max": 2.9407811075188306e-08
+      },
+      "degenerate": true,
+      "warnings": [
+        "advantage has (near-)zero spread (8.79e-08 <= tie_atol 1e-06): every frame is a tie, the threshold cannot separate frames -> 100.0% positive instead of 40%"
+      ]
+    },
+    "diagnostics": {
+      "num_frames": 634838,
+      "num_episodes": 800,
+      "positive_fraction": 1.0,
+      "positive_fraction_success_frames": 1.0,
+      "positive_fraction_failure_frames": 1.0,
+      "value_jitter_std": 1.9071172042348148e-08,
+      "advantage_std": 6.926848425755076e-09,
+      "jitter_to_advantage_std": 2.7532249690116837,
+      "value_jitter_robust": 2.114317612722516e-08,
+      "advantage_robust_std": 0.0,
+      "jitter_to_advantage_robust": Infinity,
+      "mean_run_length": 793.5475,
+      "median_run_length": 623.0,
+      "mean_run_length_positive": 793.5475,
+      "mean_run_length_negative": NaN,
+      "fraction_runs_le5": 0.0,
+      "fraction_frames_in_runs_le5": 0.0,
+      "advantage_mean_success": -1.986453609724973e-13,
+      "advantage_mean_failure": -8.941337772726881e-12,
+      "episode_positive_fraction_success": {
+        "episodes": 423,
+        "mean": 1.0,
+        "median": 1.0,
+        "q10": 1.0,
+        "q90": 1.0,
+        "num_all_positive": 423,
+        "num_all_negative": 0
+      },
+      "episode_positive_fraction_failure": {
+        "episodes": 377,
+        "mean": 1.0,
+        "median": 1.0,
+        "q10": 1.0,
+        "q90": 1.0,
+        "num_all_positive": 377,
+        "num_all_negative": 0
+      }
+    }
+  },
+  "sensitivity_smooth5": [
+    {
+      "N": 25,
+      "p_pos": 0.3,
+      "epsilon": 5.616771492356065e-10,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 25,
+      "p_pos": 0.4,
+      "epsilon": 5.616771492356065e-10,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 50,
+      "p_pos": 0.3,
+      "epsilon": 1.123354298471213e-09,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 50,
+      "p_pos": 0.4,
+      "epsilon": 1.123354298471213e-09,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 100,
+      "p_pos": 0.3,
+      "epsilon": 2.246708596942426e-09,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    },
+    {
+      "N": 100,
+      "p_pos": 0.4,
+      "epsilon": 2.246708596942426e-09,
+      "positive_fraction": 1.0,
+      "pos_frac_success": 1.0,
+      "pos_frac_failure": 1.0,
+      "mean_run_length": 793.5475,
+      "degenerate": true,
+      "agreement_vs_default": 1.0
+    }
+  ],
+  "sensitivity_table_smooth5": "| N | p_pos | epsilon | positive_fraction | pos_frac_success | pos_frac_failure | agreement_vs_default | mean_run_length | degenerate |\n|---|---|---|---|---|---|---|---|---|\n| 25 | 0.3 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 25 | 0.4 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 50 | 0.3 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 50 | 0.4 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 100 | 0.3 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |\n| 100 | 0.4 | 0.00000 | 1.000 | 1.000 | 1.000 | 1.000 | 793.5 | True |",
+  "example_episodes_smooth5": [
+    531,
+    674,
+    181,
+    244
+  ],
+  "agreement_raw_vs_smoothed": 1.0
+}

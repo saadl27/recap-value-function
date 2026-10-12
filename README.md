@@ -37,7 +37,7 @@ an advantage-conditioned policy is later trained on.
         └────────────────┬────────────────┘
                          ▼
         ┌─────────────────────────────────┐
-        │ 5. Memorisation check           │  train vs held-out → cross-fit / augment?
+        │ 5. Memorisation check           │  train vs held-out → earlier ckpt / regularise?
         └────────────────┬────────────────┘
                          ▼
         ┌─────────────────────────────────┐
@@ -57,7 +57,7 @@ an advantage-conditioned policy is later trained on.
 | 3 | [Value model](docs/steps/03_model.md) | 0 | 🔄 in progress |
 | 4 | [Training](docs/steps/04_training.md) | 1, 2, 3 | ⬜ todo |
 | 5 | [Memorisation check](docs/steps/05_memorization_check.md) | 4 | ⬜ todo |
-| 6 | [Advantage labelling](docs/steps/06_advantage.md) | 4 (5) | 🔄 code in progress (fake values) |
+| 6 | [Advantage labelling](docs/steps/06_advantage.md) | 4 (5) | 🟨 code done (validated on fake values), real labels pending — [report](reports/step_06_advantage.md) |
 | 7 | [Evaluation](docs/steps/07_evaluation.md) | 6 | 🟨 tooling done, evaluation pending — [report](reports/step_07_evaluation.md) |
 
 Each agent writes its results to `reports/step_XX.md` (see [conventions](docs/conventions.md#reports)).
@@ -111,7 +111,7 @@ optional `scripts/remote.sh` helper are in [conventions → Machines](docs/conve
 | Normalisation | divide by \|min return in dataset\| | RLinf; maps to [−1, 0] |
 | Frames | all frames, uniformly sampled, training measured in steps | RLinf/OpenTau use all frames |
 | Augmentation | off initially; turned on only if step 5 shows memorisation | not in paper |
-| Cross-fitting | only if step 5 shows memorisation | 800 episodes is small |
+| Cross-fitting | not used (out of scope for now) | decided 2026-10-12 |
 | Advantage | N = 50 frames (1 s) lookahead; top 40 % positive | Paper (post-training on rollouts) |
 | Evaluation | qualitative on held-out episodes: V drops before failure, rises on recovery | Paper only evaluates qualitatively |
 

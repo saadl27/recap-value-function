@@ -12,14 +12,12 @@ unit-tested earlier on synthetic values.
 ## 6.1 Value inference — `scripts/06_infer_values.py`
 ```bash
 uv run python scripts/06_infer_values.py --run vf_c2229_s0 --ckpt best                 # single model
-uv run python scripts/06_infer_values.py --run vf_c2229_cf --crossfit 5 --ckpt last   # fold k scores fold k
 ```
 - `model.eval()`, `torch.no_grad()`, bf16 autocast, no augmentation, large batch (e.g. 256), all frames
   (`frame_stride=1`), iterate episode by episode (`FrameDataset.get_episode` or an episode-ordered dataset).
 - Output `runs/<run>/values.parquet`: `index, episode_index, frame_index, value, value_std, model_id`.
   `model_id` = the checkpoint (and fold) that scored the episode.
-- Assert: 634 838 rows, every `index` exactly once; with cross-fitting, every episode scored by the model of its own
-  fold.
+- Assert: 634 838 rows, every `index` exactly once.
 - Report wall time and frames/s.
 
 ## 6.2 Advantage — `src/recap_vf/advantage.py`

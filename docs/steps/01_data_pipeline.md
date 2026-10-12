@@ -92,8 +92,7 @@ reproducible train / held-out / fold splits.
 - Stratified by `success`, `seed=0`:
   - `heldout`: 15 % of episodes (→ 120: ~63 success / ~57 failure). Never used for training in the default run.
   - `train`: the remaining 680.
-  - `folds`: all 800 episodes partitioned into 5 stratified folds `"0"…"4"` (used only if step 5 decides to
-    cross-fit). Independent of `heldout`.
+  - `folds`: all 800 episodes partitioned into 5 stratified folds `"0"…"4"` (currently unused: cross-fitting is out of scope). Independent of `heldout`.
 - Also stratify on episode length (e.g. bin lengths into quartiles within each success class) so held-out is
   representative. Print the success rate and length quartiles of each split.
 - `load_splits()` helper returning the dict.

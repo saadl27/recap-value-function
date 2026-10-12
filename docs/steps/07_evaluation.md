@@ -9,8 +9,7 @@ Check, by looking at the robot, that the value function behaves sensibly: **V dr
 (or fails) and rises when it recovers**, and the positive/negative labels line up with good/bad behaviour. This is
 the evaluation the paper itself uses (qualitative V plots); there is no ground truth for per-frame advantage.
 
-Evaluate **only held-out episodes** (or, after cross-fitting, any episode — each is scored by a model that never saw
-it). On training episodes a memorising model would look misleadingly good.
+Evaluate **only held-out episodes**. On training episodes a memorising model would look misleadingly good.
 
 ## Tools
 ### 7.1 `scripts/07_render_episode.py --run <run> --episode <e> [--advantages advantages_50_0.4]`

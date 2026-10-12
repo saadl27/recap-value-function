@@ -1,0 +1,15 @@
+# Step 6: N-step advantages and labels. See docs/steps/06_advantage.md. CLI flags override these.
+returns_tag: c2229          # data/cache/returns_{tag}.parquet/.json (Z is read from the JSON, never recomputed)
+lookahead: 50               # N frames (1 s at 50 fps), paper post-training setting
+p_pos: 0.4                  # fraction of frames labelled positive (paper: ~40 % for evaluation rollouts)
+# Sensitivity grid, compared with the default (lookahead, p_pos) by label agreement.
+grid_lookaheads: [25, 50, 100]
+grid_p_pos: [0.3, 0.4]
+write_grid: false           # also write advantages_{N}_{p}.parquet for every grid setting (~25 MB each)
+segment_len: null           # e.g. 50 -> segments_{N}_{p}.parquet (non-overlapping chunk labels)
+smooth_values: null         # e.g. 5 -> flagged option: centred median of V over 5 frames, written with a _smooth5 suffix
+forced_positive: null       # optional path to a JSON list of global frame indices forced to I_t = True (none yet)
+tie_atol: 1.0e-6            # |A - eps| below this is a tie (labelled positive); ~0.005 frames of progress
+figures: true               # diagnostics under reports/figures/step_06/<run>/
+num_example_episodes: 2     # per outcome, drawn from the held-out split (fixed seed)
+seed: 0
