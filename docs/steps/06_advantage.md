@@ -13,7 +13,7 @@ unit-tested earlier on synthetic values.
 ```bash
 uv run python scripts/06_infer_values.py --run vf_c2229_s0 --ckpt best                 # single model
 ```
-- `model.eval()`, `torch.no_grad()`, bf16 autocast, no augmentation, large batch (e.g. 256), all frames
+- `model.eval()`, `torch.no_grad()`, bf16 autocast, large batch (e.g. 256), all frames
   (`frame_stride=1`), iterate episode by episode (`FrameDataset.get_episode` or an episode-ordered dataset).
 - Output `runs/<run>/values.parquet`: `index, episode_index, frame_index, value, value_std, model_id`.
   `model_id` = the checkpoint (and fold) that scored the episode.

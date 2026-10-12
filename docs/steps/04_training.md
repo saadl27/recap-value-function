@@ -1,7 +1,7 @@
 # Step 4 — Value-function training
 
 **Depends on:** steps 1, 2, 3. **Runs on:** the RTX 5090 (smoke tests on the laptop).
-**Owns:** `src/recap_vf/train.py`, `src/recap_vf/metrics.py`, `src/recap_vf/augment.py`,
+**Owns:** `src/recap_vf/train.py`, `src/recap_vf/metrics.py`,
 `scripts/04_train_value.py`, `configs/train_default.yaml`, `tests/test_train.py`, `tests/test_metrics.py`,
 `reports/step_04_training.md`, `reports/figures/step_04/`.
 
@@ -12,7 +12,7 @@ everything step 5 needs to diagnose memorisation.
 ## Data
 - Train set: `FrameDataset(splits["train"])` — all frames of 680 episodes (~540 k frames), joined with
   `returns_{tag}.parquet` on `index` to add `target_bin` and `return_norm`.
-- Val sets (both evaluated every `eval_every` steps, **no augmentation**):
+- Val sets (both evaluated every `eval_every` steps):
   - `val_heldout`: all 120 held-out episodes, `frame_stride=10` (~9.5 k frames);
   - `val_train`: 120 randomly chosen **train** episodes (fixed seed), `frame_stride=10`. Same metrics as held-out →
     the train/held-out gap is the memorisation signal used in step 5.
@@ -38,17 +38,10 @@ everything step 5 needs to diagnose memorisation.
 | precision | bf16 autocast, fp32 master weights, TF32 on | |
 | grad checkpointing | as needed for micro-batch 32 | |
 | eval / ckpt | every 250 steps | |
-| augmentation | **off** (`augment: false`) | step 5 may turn it on |
+| augmentation | **none** | decided 2026-10-12: not used anywhere in this project |
 | seed | 0 | |
 
 `torch.compile` is optional — only if it works first try; report.
-
-## Augmentation (`src/recap_vf/augment.py`, used only if `augment: true`)
-Mirror RLinf's openpi-style recipe, applied on GPU per sample, train only:
-- non-wrist cameras (`top`): random crop 95 % of H and W → resize back to 224; random rotation ±5°;
-- all cameras: brightness ×U(0.7, 1.3), contrast ×U(0.6, 1.4) around the image mean, saturation ×U(0.5, 1.5);
-  clamp to [0, 1].
-Unit-test that it keeps shape/dtype/range and is a no-op when disabled.
 
 ## Metrics (`src/recap_vf/metrics.py`, computed on both val sets)
 | Metric | Definition |

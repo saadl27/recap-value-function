@@ -111,7 +111,7 @@ optional `scripts/remote.sh` helper are in [conventions → Machines](docs/conve
 | Normalisation | divide by \|min return in dataset\| | RLinf; maps to [−1, 0] |
 | Frames | all frames, uniformly sampled, training measured in steps | RLinf/OpenTau use all frames |
 | Training budget | ≤ one pass over train frames (2 100 steps × 256, ~4–5 h), constant LR, early stop on held-out CE | 8 000 steps (RLinf) would take ~18 h on one 5090 |
-| Augmentation | off initially; turned on only if step 5 shows memorisation | not in paper |
+| Augmentation | none | not in paper; decided 2026-10-12 |
 | Cross-fitting | not used (out of scope for now) | decided 2026-10-12 |
 | Advantage | N = 50 frames (1 s) lookahead; top 40 % positive | Paper (post-training on rollouts) |
 | Evaluation | qualitative on held-out episodes: V drops before failure, rises on recovery | Paper only evaluates qualitatively |

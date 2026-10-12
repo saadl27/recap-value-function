@@ -34,7 +34,7 @@ Save figures under `reports/figures/step_05/` and a metrics table in the report.
   → keep the single model (`best` checkpoint). Go to step 6 with `--run vf_c2229_s0`.
 - **Memorisation present** — try, in this order, stopping as soon as the gap closes:
   1. **Earlier checkpoint** (the gap often appears after the val-CE minimum). Cheap.
-  2. **Regularised re-run**: `augment: true`, `head_dropout: 0.1`, `weight_decay: 0.01`, and/or fewer steps.
+  2. **Regularised re-run**: `head_dropout: 0.1`, `weight_decay: 0.01`, and/or fewer steps.
      One run (~same cost as step 4).
 
 ## Definition of done
