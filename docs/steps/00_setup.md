@@ -31,7 +31,7 @@ A working `.venv` with CUDA PyTorch, access to both backbones on the Hugging Fac
    | Item | Size |
    |---|---|
    | `.venv` (torch cu128 + deps) | ~6 GB |
-   | HF cache: SigLIP2 (1.1 GB fp32) + Gemma-3-270M (0.5 GB) | ~2 GB |
+   | HF cache: SigLIP2 checkpoint (4.5 GB — includes the unused text tower) + Gemma-3-270M (0.5 GB) | ~5.1 GB |
    | Raw dataset | 5.3 GB |
    | JPEG frame store (step 1) | ~20–30 GB (step 1 measures it) |
    | Checkpoints (≈2.8 GB each in fp32 / 1.4 GB bf16), keep ≤ 3 per run | ~5–10 GB per run |

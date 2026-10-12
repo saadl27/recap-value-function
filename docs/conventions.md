@@ -8,8 +8,9 @@ must say so in its report and the orchestrator updates this file — never silen
 - Python ≥ 3.11 (the venv uses 3.12). PyTorch wheels from the CUDA 12.8 index (required for RTX 50xx / Blackwell).
 - Laptop only: ROS Humble puts Python 3.10 packages on `PYTHONPATH`. Run everything as `env -u PYTHONPATH uv run …`.
 - Verified versions (laptop, 2026-10-12): torch 2.11.0+cu128, transformers 5.19.0, av 19.0.1.
-- `google/gemma-3-270m` is gated and **not** accessible with the current HF login → use
-  `constants.LANGUAGE_BACKBONE_MIRROR` (`unsloth/gemma-3-270m`, identical weights) unless Saad accepts the licence.
+- Language backbone: `ValueModelConfig` defaults to `constants.LANGUAGE_BACKBONE_MIRROR` (`unsloth/gemma-3-270m`,
+  identical weights to the gated `google/gemma-3-270m`). The laptop HF login now has access to the official repo; the
+  workstation has no HF login, so keep the mirror there (or log in and pass `--language-backbone google/gemma-3-270m`).
 - Need a dependency that is not in `pyproject.toml`? Add it with `uv add <pkg>` **and** list it in your report.
   Do not run `uv sync`/`uv add` while another agent is running a job in the same `.venv`.
 
@@ -24,7 +25,7 @@ commit on the laptop → push → `git pull` in `~/DreamMachines` on the worksta
 Every script must therefore work at **two scales** with the same code: a laptop smoke scale (a few episodes,
 frozen backbone / tiny batch where needed) and the full scale, selected by CLI flags or config — never by editing code.
 
-**Laptop disk budget (~15 GB free):** `.venv` ~6 GB + backbones ~2 GB + a data subset < 1 GB. Never download the
+**Laptop disk budget (~15 GB free):** `.venv` ~7 GB + backbones ~5 GB (HF cache) + a data subset < 1 GB. Never download the
 full videos (3 × 1.5 GB) or extract all frames on the laptop. The videos can be **streamed over HTTPS** with PyAV
 (`av.open("https://huggingface.co/datasets/…/file-000.mp4")` — the decoder fetches the index at the end of the file,
 then reads sequentially), so laptop smoke tests decode just the first episodes. Clean up anything you no longer need.

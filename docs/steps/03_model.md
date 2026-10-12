@@ -73,7 +73,7 @@ A PyTorch module that maps one timestep's observation (3 camera images + 14-D st
 @dataclass
 class ValueModelConfig:
     vision_backbone: str = constants.VISION_BACKBONE
-    language_backbone: str = constants.LANGUAGE_BACKBONE
+    language_backbone: str = constants.LANGUAGE_BACKBONE_MIRROR   # identical weights, ungated
     cameras: tuple[str, ...] = constants.CAMERAS
     state_mode: Literal["linear", "none"] = "linear"
     full_attention: bool = True

@@ -71,6 +71,20 @@ decreasing while val CE bottoms out and rises: that's the over-fitting point.
 - Resumable from `last` (`--resume`).
 - Default run name: `vf_c2229_s0`.
 
+## Lessons from step 3 (measured)
+- Batches of 4 at lr 1e-4 on the pretrained LM could not even memorise 16 samples in 200 steps; full-batch 16 did.
+  Keep the large effective batch (256 via accumulation) and lr ≤ 5e-5 on pretrained weights.
+- Laptop (≈5 GiB usable on the RTX 4060): smoke tests need `freeze_vision: true`, `gradient_checkpointing: true`,
+  micro-batch ≤ 8. Full fine-tune only on the 5090.
+- Backbone default is the ungated mirror `unsloth/gemma-3-270m` (identical weights); the workstation has no HF login.
+
+## Running on the workstation
+1. Develop + smoke-test on the laptop.
+2. Commit **only the files this step owns** (`git add <paths>` — never `git add -A`) on `main`, push.
+3. `scripts/remote.sh update` (git pull there), `scripts/remote.sh gpu` (must be free of other users' jobs),
+   then `scripts/remote.sh bg <name> "uv run python scripts/04_train_value.py …"`; follow with `log` / `jobs`.
+4. The frame store, splits and returns tables already exist on the workstation (`~/DreamMachines/data/cache/`).
+
 ## Tasks
 1. `train.py`: config dataclass (loaded from YAML, overridable from CLI like `--set steps=200`), dataloaders,
    loop with grad accumulation, eval, checkpointing, resume.
